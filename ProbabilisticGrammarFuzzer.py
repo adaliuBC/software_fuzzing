@@ -394,13 +394,6 @@ class ProbabilisticGrammarMiner(ProbabilisticGrammarMiner):
         self.set_probabilities(self.counts())
         return self.grammar
 
-### Testing Common Features
-
-if __name__ == '__main__':
-    print('\n### Testing Common Features')
-
-
-
 URL_SAMPLE: List[str] = [
     "https://user:password@cispa.saarland:80/",
     "https://fuzzingbook.com?def=56&x89=3&x46=48&def=def",
@@ -478,6 +471,35 @@ class ProbabilisticGrammarCoverageFuzzer(
     def choose_covered_node_expansion(self, node, children_alternatives):
         return ProbabilisticGrammarFuzzer.choose_node_expansion(
             self, node, children_alternatives)
+
+
+from scssGrammar import SCSS_GRAMMAR
+from scss import Compiler
+#from GeneratorGrammarFuzzer import PGGCFuzzer
+# 试试不同的fuzzer
+if __name__ == '__main__':
+
+    f = GrammarFuzzer(SCSS_GRAMMAR, min_nonterminals=3, max_nonterminals=50, log=True)
+    f.check_grammar()
+    f.compute_cost()
+    f.fuzz()
+    treeFig = display_tree(f.derivation_tree)
+    treeFig.render(directory="./output/", filename="scss_grammar_tree", view=True)
+    scssText = all_terminals(f.derivation_tree)
+    # with open("try.txt", "w") as f:
+    #     f.write(scssText)
+    print("generated scss code:\n", scssText)
+    
+    cssText = Compiler().compile_string(scssText)
+    print("generated css code:\n", cssText)
+    '''
+    with Coverage() as cov:
+        css = Compiler().compile_string(scss)
+    #pdb.set_trace()
+    trace = cov.trace()
+    coverage = cov.coverage()
+    print(coverage)
+    '''
 '''
 if __name__ == '__main__':
     cov_leaddigit_fuzzer = ProbabilisticGrammarCoverageFuzzer(

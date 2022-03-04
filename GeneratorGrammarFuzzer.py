@@ -263,7 +263,7 @@ class GeneratorGrammarFuzzer(GeneratorGrammarFuzzer):
             self.generators[key] = function()
         generator = self.generators[key]
         return next(generator)
-
+'''
 ## Checking and Repairing Elements after Expansion
 ## -----------------------------------------------
 
@@ -370,22 +370,6 @@ def eval_with_exception(s):
         return eval(s)
     return False
 
-if __name__ == '__main__':
-    negative_expr_grammar = extend_grammar(EXPR_GRAMMAR,
-                                           {
-                                               "<start>": [("<expr>", opts(post=lambda s: eval_with_exception(s) < 0))]
-                                           }
-                                           )
-
-    assert is_valid_grammar(negative_expr_grammar)
-
-# if __name__ == '__main__':
-#     negative_expr_fuzzer = GeneratorGrammarFuzzer(negative_expr_grammar)
-#     negative_expr_fuzzer.compute_cost()
-#     expr = negative_expr_fuzzer.fuzz()
-#     print(expr)
-#     eval(expr)
-
 ### Example: Matching XML Tags
 from bookutils import HTML
 
@@ -406,21 +390,6 @@ XML_GRAMMAR.update({
 
 ## Local Checking and Repairing
 ## ----------------------------
-if __name__ == '__main__':
-    binary_expr_grammar = extend_grammar(EXPR_GRAMMAR,
-                                         {
-                                             "<integer>": [("<digit><integer>", opts(post=lambda digit, _: digit in ["0", "1"])),
-                                                           ("<digit>", opts(post=lambda digit: digit in ["0", "1"]))]
-                                         }
-                                         )
-
-if __name__ == '__main__':
-    assert is_valid_grammar(binary_expr_grammar)
-
-if __name__ == '__main__':
-    binary_expr_fuzzer = GeneratorGrammarFuzzer(binary_expr_grammar)
-    #binary_expr_fuzzer.compute_cost()
-    #binary_expr_fuzzer.fuzz()
 
 class RestartExpansionException(Exception):
     pass
@@ -545,36 +514,6 @@ def clear_symbol_table() -> None:
     global SYMBOL_TABLE
     SYMBOL_TABLE = set()
 
-CONSTRAINED_VAR_GRAMMAR = extend_grammar(VAR_GRAMMAR)
-
-CONSTRAINED_VAR_GRAMMAR = extend_grammar(CONSTRAINED_VAR_GRAMMAR, {
-    "<assignment>": [("<identifier>=<expr>",
-                      opts(post=lambda id, expr: define_id(id)))]
-})
-
-CONSTRAINED_VAR_GRAMMAR = extend_grammar(CONSTRAINED_VAR_GRAMMAR, {
-    "<factor>": ['+<factor>', '-<factor>', '(<expr>)',
-                 ("<identifier>", opts(post=lambda _: use_id())),
-                 '<number>']
-})
-
-CONSTRAINED_VAR_GRAMMAR = extend_grammar(CONSTRAINED_VAR_GRAMMAR, {
-    "<start>": [("<statements>", opts(pre=clear_symbol_table))]
-})
-
-if __name__ == '__main__':
-    assert is_valid_grammar(CONSTRAINED_VAR_GRAMMAR)
-
-CONSTRAINED_VAR_GRAMMAR = extend_grammar(CONSTRAINED_VAR_GRAMMAR, {
-    "<statements>": [("<statement>;<statements>", opts(order=[1, 2])),
-                     "<statement>"]
-})
-
-CONSTRAINED_VAR_GRAMMAR = extend_grammar(CONSTRAINED_VAR_GRAMMAR, {
-    "<assignment>": [("<identifier>=<expr>", opts(post=lambda id, expr: define_id(id),
-                                                  order=[2, 1]))],
-})
-
 def exp_order(expansion):
     """Return the specified expansion ordering, or None if unspecified"""
     return exp_opt(expansion, 'order')
@@ -624,7 +563,35 @@ def exp_order(expansion):
 #                   (min_given_order, expandable_children[min_given_order][0]))
 
 #         return min_given_order
+'''
+from GrammarFuzzer import display_tree
+from scssGrammar import SCSS_GRAMMAR
+from scss import Compiler
+#from GeneratorGrammarFuzzer import PGGCFuzzer
+# 试试不同的fuzzer
+if __name__ == '__main__':
 
+    f = GeneratorGrammarFuzzer(SCSS_GRAMMAR, min_nonterminals=3, max_nonterminals=50, log=True)
+    f.check_grammar()
+    f.compute_cost()
+    f.fuzz()
+    treeFig = display_tree(f.derivation_tree)
+    treeFig.render(directory="./output/", filename="scss_grammar_tree", view=True)
+    scssText = all_terminals(f.derivation_tree)
+    # with open("try.txt", "w") as f:
+    #     f.write(scssText)
+    print("generated scss code:\n", scssText)
+    
+    cssText = Compiler().compile_string(scssText)
+    print("generated css code:\n", cssText)
+    '''
+    with Coverage() as cov:
+        css = Compiler().compile_string(scss)
+    #pdb.set_trace()
+    trace = cov.trace()
+    coverage = cov.coverage()
+    print(coverage)
+    '''
 ### Generators and Probabilistic Fuzzing
 
 from ProbabilisticGrammarFuzzer import ProbabilisticGrammarFuzzer  # minor dependency

@@ -641,6 +641,7 @@ if __name__ == '__main__':
     # with open("try.txt", "w") as f:
     #     f.write(scssText)
     print("generated scss code:\n", scssText)
+    scssText = "$varName: 5em;\n" + scssText
     
     cssText = Compiler().compile_string(scssText)
     print("generated css code:\n", cssText)
