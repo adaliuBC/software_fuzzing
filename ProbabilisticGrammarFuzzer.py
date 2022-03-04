@@ -161,20 +161,7 @@ def exp_prob(expansion: Expansion) -> float:
     """Return the options of an expansion - 取出expansion中的prob"""
     return exp_opt(expansion, 'prob')
 
-# 打印一个看看
-if __name__ == '__main__':
-    f = GrammarFuzzer(PROBABILISTIC_EXPR_GRAMMAR)
-    f.fuzz()
-    print(all_terminals(f.derivation_tree))
-
-
 from GrammarCoverageFuzzer import GrammarCoverageFuzzer  # minor dependency
-'''
-# here we use the existing fuzzer without prob takes effect
-if __name__ == '__main__':
-    f = GrammarCoverageFuzzer(PROBABILISTIC_EXPR_GRAMMAR)
-    f.fuzz()
-'''
 ## Computing Probabilities
 ## -----------------------
 
@@ -299,38 +286,6 @@ def set_prob(grammar: Grammar, symbol: str,
     """Set the probability of the given expansion of grammar[symbol]"""
     set_opts(grammar, symbol, expansion, opts(prob=prob))
 
-if __name__ == '__main__':
-    probabilistic_url_grammar = extend_grammar(URL_GRAMMAR)
-    # 这里会生成很多ftps开头的URL
-    set_prob(probabilistic_url_grammar, "<scheme>", "ftps", 0.8)
-    assert is_valid_probabilistic_grammar(probabilistic_url_grammar)
-
-    probabilistic_url_grammar["<scheme>"]
-
-    prob_url_fuzzer = ProbabilisticGrammarFuzzer(probabilistic_url_grammar)
-    for i in range(10):
-        print(prob_url_fuzzer.fuzz())
-
-    # ftps设为0：仍然可能看到，因为在关闭阶段我们不管概率只想关闭
-    set_prob(probabilistic_url_grammar, "<scheme>", "ftps", 0.0)
-    assert is_valid_probabilistic_grammar(probabilistic_url_grammar)
-
-    prob_url_fuzzer = ProbabilisticGrammarFuzzer(probabilistic_url_grammar)
-    for i in range(10):
-        print(prob_url_fuzzer.fuzz())
-
-
-if __name__ == '__main__':
-    probabilistic_expr_grammar = extend_grammar(EXPR_GRAMMAR)
-    probabilistic_expr_grammar["<expr>"]
-    # 同上，<term>设为0：仍然可能看到，因为在关闭阶段我们不管概率只想关闭
-    set_prob(probabilistic_expr_grammar, "<expr>", "<term>", 0.0)
-    assert is_valid_probabilistic_grammar(probabilistic_expr_grammar)
-
-    prob_expr_fuzzer = ProbabilisticGrammarFuzzer(probabilistic_expr_grammar)
-    prob_expr_fuzzer.fuzz()
-
-
 ## Probabilities in Context
 ## ------------------------
 ## 在概率的基础上考虑上下文（比如IPV4地址四段中某一段赋固定值，其他段仍然随机）
@@ -346,57 +301,17 @@ IP_ADDRESS_GRAMMAR: Grammar = {
     "<octet>": decrange(0, 256)
 }
 
-if __name__ == '__main__':
-    print(IP_ADDRESS_GRAMMAR["<octet>"][:20])
-    assert is_valid_grammar(IP_ADDRESS_GRAMMAR)
-    ip_fuzzer = ProbabilisticGrammarFuzzer(IP_ADDRESS_GRAMMAR)
-    ip_fuzzer.fuzz()
-
-    probabilistic_ip_address_grammar = extend_grammar(IP_ADDRESS_GRAMMAR)
-    set_prob(probabilistic_ip_address_grammar, "<octet>", "127", 0.8)
-    probabilistic_ip_fuzzer = ProbabilisticGrammarFuzzer(
-        probabilistic_ip_address_grammar)
-    probabilistic_ip_fuzzer.fuzz()
-
 # 修改之后，我们把<octet> * 4改成duplicate的<octet-1>, -2, -3, -4四个，并赋不同概率
 from GrammarCoverageFuzzer import duplicate_context  # minor dependency
 
-if __name__ == '__main__':
-    probabilistic_ip_address_grammar = extend_grammar(IP_ADDRESS_GRAMMAR)
-    duplicate_context(probabilistic_ip_address_grammar, "<address>")
-
-if __name__ == '__main__':
-    probabilistic_ip_address_grammar["<address>"]
-
-if __name__ == '__main__':
-    set_prob(probabilistic_ip_address_grammar, "<octet-1>", "127", 1.0)
-    set_prob(probabilistic_ip_address_grammar, "<octet-2>", "0", 1.0)
-
-if __name__ == '__main__':
-    assert is_valid_probabilistic_grammar(probabilistic_ip_address_grammar)
-
-if __name__ == '__main__':
-    probabilistic_ip_fuzzer = ProbabilisticGrammarFuzzer(
-        probabilistic_ip_address_grammar)
-    [probabilistic_ip_fuzzer.fuzz() for i in range(5)]
-
 ## Learning Probabilities from Samples
 ## -----------------------------------
-
-# 。。。
 
 ### Counting Expansions
 
 from Parser import Parser, EarleyParser
 
 IP_ADDRESS_TOKENS = {"<octet>"}  # EarleyParser needs explicit tokens
-
-if __name__ == '__main__':
-    parser = EarleyParser(IP_ADDRESS_GRAMMAR)
-
-if __name__ == '__main__':
-    tree, *_ = parser.parse("127.0.0.1")
-    display_tree(tree)
 
 from GrammarCoverageFuzzer import expansion_key  # minor dependency
 
@@ -447,13 +362,6 @@ class ExpansionCountMiner(ExpansionCountMiner):
     def counts(self) -> Dict[str, int]:
         return self.expansion_counts
 
-if __name__ == '__main__':
-    expansion_count_miner = ExpansionCountMiner(EarleyParser(IP_ADDRESS_GRAMMAR))
-
-if __name__ == '__main__':
-    expansion_count_miner.count_expansions(["127.0.0.1", "1.2.3.4"])
-    expansion_count_miner.counts()
-
 ### Assigning Probabilities
 
 class ProbabilisticGrammarMiner(ExpansionCountMiner):
@@ -486,26 +394,6 @@ class ProbabilisticGrammarMiner(ProbabilisticGrammarMiner):
         self.set_probabilities(self.counts())
         return self.grammar
 
-if __name__ == '__main__':
-    probabilistic_grammar_miner = ProbabilisticGrammarMiner(
-        EarleyParser(IP_ADDRESS_GRAMMAR))
-
-if __name__ == '__main__':
-    probabilistic_ip_address_grammar = probabilistic_grammar_miner.mine_probabilistic_grammar([
-                                                                                              "127.0.0.1", "1.2.3.4"])
-
-if __name__ == '__main__':
-    assert is_valid_probabilistic_grammar(probabilistic_ip_address_grammar)
-
-if __name__ == '__main__':
-    [expansion for expansion in probabilistic_ip_address_grammar['<octet>']
-        if exp_prob(expansion) > 0]
-
-if __name__ == '__main__':
-    probabilistic_ip_fuzzer = ProbabilisticGrammarFuzzer(
-        probabilistic_ip_address_grammar)
-    [probabilistic_ip_fuzzer.fuzz() for i in range(10)]
-
 ### Testing Common Features
 
 if __name__ == '__main__':
@@ -526,31 +414,6 @@ URL_SAMPLE: List[str] = [
 ]
 
 URL_TOKENS: Set[str] = {"<scheme>", "<userinfo>", "<host>", "<port>", "<id>"}
-
-if __name__ == '__main__':
-    url_parser = EarleyParser(URL_GRAMMAR, tokens=URL_TOKENS)
-    url_input = URL_SAMPLE[2]
-    print(url_input)
-    tree, *_ = url_parser.parse(url_input)
-    display_tree(tree)
-
-if __name__ == '__main__':
-    probabilistic_grammar_miner = ProbabilisticGrammarMiner(url_parser)
-    probabilistic_url_grammar = probabilistic_grammar_miner.mine_probabilistic_grammar(
-        URL_SAMPLE)
-
-if __name__ == '__main__':
-    print(probabilistic_grammar_miner.counts())
-
-if __name__ == '__main__':
-    probabilistic_url_grammar['<scheme>']
-
-if __name__ == '__main__':
-    probabilistic_url_grammar['<params>']
-
-if __name__ == '__main__':
-    g = ProbabilisticGrammarFuzzer(probabilistic_url_grammar)
-    [g.fuzz() for i in range(10)]
 
 ### Testing Uncommon Features
 
@@ -574,154 +437,16 @@ def invert_expansion(expansion: List[Expansion]) -> List[Expansion]:
 
     return inverted_expansion
 
-if __name__ == '__main__':
-    probabilistic_url_grammar['<scheme>']
-
-if __name__ == '__main__':
-    invert_expansion(probabilistic_url_grammar['<scheme>'])
-
-if __name__ == '__main__':
-    invert_expansion(invert_expansion(probabilistic_url_grammar['<scheme>']))
-
 def invert_probs(grammar: Grammar) -> Grammar:
     inverted_grammar = extend_grammar(grammar)
     for symbol in grammar:
         inverted_grammar[symbol] = invert_expansion(grammar[symbol])
     return inverted_grammar
 
-if __name__ == '__main__':
-    probabilistic_url_grammar["<digit>"]
-
-if __name__ == '__main__':
-    inverted_probabilistic_url_grammar = invert_probs(probabilistic_url_grammar)
-    inverted_probabilistic_url_grammar["<digit>"]
-
-if __name__ == '__main__':
-    g = ProbabilisticGrammarFuzzer(inverted_probabilistic_url_grammar)
-    [g.fuzz() for i in range(10)]
-
 ### Learning Probabilities from Input Slices
 
 from Coverage import Coverage, cgi_decode
 from Grammars import CGI_GRAMMAR
-
-if __name__ == '__main__':
-    cgi_fuzzer = GrammarFuzzer(CGI_GRAMMAR)
-
-if __name__ == '__main__':
-    trials = 100
-    coverage = {}
-
-    for i in range(trials):
-        cgi_input = cgi_fuzzer.fuzz()
-        with Coverage() as cov:
-            cgi_decode(cgi_input)
-        coverage[cgi_input] = cov.coverage()
-
-if __name__ == '__main__':
-    coverage_slice = [cgi_input for cgi_input in coverage
-                      if ('cgi_decode', 25) in coverage[cgi_input]]
-
-if __name__ == '__main__':
-    print(coverage_slice)
-
-if __name__ == '__main__':
-    len(coverage_slice) / trials
-
-if __name__ == '__main__':
-    probabilistic_grammar_miner = ProbabilisticGrammarMiner(
-        EarleyParser(CGI_GRAMMAR))
-    probabilistic_cgi_grammar = probabilistic_grammar_miner.mine_probabilistic_grammar(
-        coverage_slice)
-
-if __name__ == '__main__':
-    assert is_valid_probabilistic_grammar(probabilistic_cgi_grammar)
-
-if __name__ == '__main__':
-    probabilistic_cgi_grammar['<letter>']
-
-if __name__ == '__main__':
-    probabilistic_cgi_fuzzer = ProbabilisticGrammarFuzzer(
-        probabilistic_cgi_grammar)
-    print([probabilistic_cgi_fuzzer.fuzz() for i in range(20)])
-
-if __name__ == '__main__':
-    trials = 100
-    coverage = {}
-
-    for i in range(trials):
-        cgi_input = probabilistic_cgi_fuzzer.fuzz()
-        with Coverage() as cov:
-            cgi_decode(cgi_input)
-        coverage[cgi_input] = cov.coverage()
-
-if __name__ == '__main__':
-    coverage_slice: List[str] = [cgi_input for cgi_input in coverage
-                                 if ('cgi_decode', 25) in coverage[cgi_input]]
-
-if __name__ == '__main__':
-    len(coverage_slice) / trials
-
-if __name__ == '__main__':
-    for run in range(3):
-        probabilistic_cgi_grammar = probabilistic_grammar_miner.mine_probabilistic_grammar(
-            coverage_slice)
-        probabilistic_cgi_fuzzer = ProbabilisticGrammarFuzzer(
-            probabilistic_cgi_grammar)
-
-        trials = 100
-        coverage = {}
-
-        for i in range(trials):
-            cgi_input = probabilistic_cgi_fuzzer.fuzz()
-            with Coverage() as cov:
-                cgi_decode(cgi_input)
-            coverage[cgi_input] = cov.coverage()
-
-        coverage_slice = [cgi_input for cgi_input in coverage
-                          if ('cgi_decode', 25) in coverage[cgi_input]]
-
-if __name__ == '__main__':
-    len(coverage_slice) / trials
-
-
-
-## Detecting Unnatural Numbers
-## ---------------------------
-
-if __name__ == '__main__':
-    sample_size = 1000
-    random_integer_fuzzer = GrammarFuzzer(
-        PROBABILISTIC_EXPR_GRAMMAR,
-        start_symbol="<leaddigit>")
-    random_integers = [random_integer_fuzzer.fuzz() for i in range(sample_size)]
-
-if __name__ == '__main__':
-    random_counts = [random_integers.count(str(c)) for c in crange('1', '9')]
-    random_counts
-
-if __name__ == '__main__':
-    expected_prob_counts = [
-        exp_prob(
-            PROBABILISTIC_EXPR_GRAMMAR["<leaddigit>"][i]) *
-        sample_size for i in range(9)]
-    print(expected_prob_counts)
-
-if __name__ == '__main__':
-    expected_random_counts = [sample_size / 9 for i in range(9)]
-    print(expected_random_counts)
-
-if __name__ == '__main__':
-    from scipy.stats import chisquare  # type: ignore
-
-if __name__ == '__main__':
-    chisquare(random_counts, expected_prob_counts)
-
-if __name__ == '__main__':
-    chisquare(random_counts, expected_random_counts)
-
-## Synopsis
-## --------
 
 from Grammars import US_PHONE_GRAMMAR, extend_grammar, opts
 
@@ -733,36 +458,9 @@ PROBABILISTIC_US_PHONE_GRAMMAR: Grammar = extend_grammar(US_PHONE_GRAMMAR,
                       ],
 })
 
-if __name__ == '__main__':
-    probabilistic_us_phone_fuzzer = ProbabilisticGrammarFuzzer(PROBABILISTIC_US_PHONE_GRAMMAR)
-    [probabilistic_us_phone_fuzzer.fuzz() for i in range(5)]
 
 from ClassDiagram import display_class_hierarchy
-
-if __name__ == '__main__':
-    display_class_hierarchy([ProbabilisticGrammarFuzzer],
-                            public_methods=[
-                                Fuzzer.run,
-                                Fuzzer.runs,
-                                GrammarFuzzer.__init__,
-                                GrammarFuzzer.fuzz,
-                                GrammarFuzzer.fuzz_tree,
-                                ProbabilisticGrammarFuzzer.__init__,
-                            ],
-                            types={
-                                'DerivationTree': DerivationTree,
-                                'Expansion': Expansion,
-                                'Grammar': Grammar
-                            },
-                            project='fuzzingbook')
-
-
-
-
 from bookutils import inheritance_conflicts
-
-if __name__ == '__main__':
-    inheritance_conflicts(GrammarCoverageFuzzer, ProbabilisticGrammarFuzzer)
 
 class ProbabilisticGrammarCoverageFuzzer(
         GrammarCoverageFuzzer, ProbabilisticGrammarFuzzer):
@@ -780,7 +478,7 @@ class ProbabilisticGrammarCoverageFuzzer(
     def choose_covered_node_expansion(self, node, children_alternatives):
         return ProbabilisticGrammarFuzzer.choose_node_expansion(
             self, node, children_alternatives)
-
+'''
 if __name__ == '__main__':
     cov_leaddigit_fuzzer = ProbabilisticGrammarCoverageFuzzer(
         PROBABILISTIC_EXPR_GRAMMAR, start_symbol="<leaddigit>")
@@ -798,4 +496,4 @@ if __name__ == '__main__':
 
     print([(digit, count[digit] / trials) for digit in count])
 
-
+'''

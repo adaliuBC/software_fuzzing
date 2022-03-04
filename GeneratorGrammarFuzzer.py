@@ -114,11 +114,6 @@ if __name__ == '__main__':
 
 from GrammarFuzzer import GrammarFuzzer, all_terminals
 
-if __name__ == '__main__':
-    g = GrammarFuzzer(CHARGE_GRAMMAR)
-    g.compute_cost()
-    [g.fuzz() for i in range(5)]
-
 ## Attaching Functions to Expansions
 ## ---------------------------------
 
@@ -172,19 +167,11 @@ def fix_luhn_checksum(s: str) -> str:
     """Return the given string of digits, with a fixed check digit"""
     return s[:-1] + repr(luhn_checksum(s[:-1]))
 
-if __name__ == '__main__':
-    check_credit_card: Callable[[str], bool] = valid_luhn_checksum
-    fix_credit_card: Callable[[str], str] = fix_luhn_checksum
 
 ## A Class for Integrating Constraints
 ## -----------------------------------
 
 
-
-if __name__ == '__main__':
-    g = GrammarFuzzer(CHARGE_GRAMMAR)
-    g.compute_cost()
-    g.fuzz()
 
 class GeneratorGrammarFuzzer(GrammarFuzzer):
     def supported_opts(self) -> Set[str]:
@@ -192,7 +179,7 @@ class GeneratorGrammarFuzzer(GrammarFuzzer):
 
 def exp_pre_expansion_function(expansion: Expansion) -> Optional[Callable]:
     """Return the specified pre-expansion function, or None if unspecified"""
-    return exp_opt(expansion, 'pre')
+    return exp_opt(expansion, 'pre')   # return the specified option of expansion
 
 def exp_post_expansion_function(expansion: Expansion) -> Optional[Callable]:
     """Return the specified post-expansion function, or None if unspecified"""
@@ -205,10 +192,12 @@ import inspect
 class GeneratorGrammarFuzzer(GeneratorGrammarFuzzer):
     def process_chosen_children(self, children: List[DerivationTree],
                                 expansion: Expansion) -> List[DerivationTree]:
+        # 获取这个expansion的pre func
         function = exp_pre_expansion_function(expansion)
         if function is None:
             return children
 
+        # 获取一个pre function
         assert callable(function)
         if inspect.isgeneratorfunction(function):
             # See "generators", below
@@ -218,14 +207,18 @@ class GeneratorGrammarFuzzer(GeneratorGrammarFuzzer):
 
         if self.log:
             print(repr(function) + "()", "=", repr(result))
+        # 把pre func result应用在expansion children上
         return self.apply_result(result, children)
 
 class GeneratorGrammarFuzzer(GeneratorGrammarFuzzer):
     def apply_result(self, result: Any,
                      children: List[DerivationTree]) -> List[DerivationTree]:
+        # 判断result的类型并且相应地应用在children上
         if isinstance(result, str):
+            # 直接替换str
             children = [(result, [])]
         elif isinstance(result, list):
+            # 对list里面的每一个都进行替换
             symbol_indexes = [i for i, c in enumerate(children)
                               if is_nonterminal(c[0])]
 
@@ -255,71 +248,6 @@ class GeneratorGrammarFuzzer(GeneratorGrammarFuzzer):
 
         return children
 
-if __name__ == '__main__':
-    charge_fuzzer = GeneratorGrammarFuzzer(CHARGE_GRAMMAR)
-    charge_fuzzer.compute_cost()
-    charge_fuzzer.fuzz()
-
-if __name__ == '__main__':
-    amount_fuzzer = GeneratorGrammarFuzzer(
-        CHARGE_GRAMMAR, start_symbol="<amount>", log=True)
-    amount_fuzzer.compute_cost()
-    amount_fuzzer.fuzz()
-
-### Example: More Numeric Ranges
-
-# if __name__ == '__main__':
-#     expr_100_200_grammar = extend_grammar(EXPR_GRAMMAR,
-#                                           {
-#                                               "<factor>": [
-#                                                   "+<factor>", "-<factor>", "(<expr>)",
-
-#                                                   # Generate only the integer part with a function;
-#                                                   # the fractional part comes from
-#                                                   # the grammar
-#                                                   ("<integer>.<integer>", opts(
-#                                                       pre=lambda: [random.randint(100, 200), None])),
-
-#                                                   # Generate the entire integer
-#                                                   # from the function
-#                                                   ("<integer>", opts(
-#                                                       pre=lambda: random.randint(100, 200))),
-#                                               ],
-#                                           }
-#                                           )
-
-# if __name__ == '__main__':
-#     expr_100_200_fuzzer = GeneratorGrammarFuzzer(expr_100_200_grammar)
-#     expr_100_200_fuzzer.compute_cost()
-#     expr_100_200_fuzzer.fuzz()
-
-### Support for Python Generators
-
-def iterate():
-    t = 0
-    while True:
-        t = t + 1
-        yield t
-
-if __name__ == '__main__':
-    for i in iterate():
-        if i > 10:
-            break
-        print(i, end=" ")
-
-if __name__ == '__main__':
-    iterate_grammar = extend_grammar(EXPR_GRAMMAR,
-                                     {
-                                         "<factor>": [
-                                             "+<factor>", "-<factor>", "(<expr>)",
-                                             # "<integer>.<integer>",
-
-                                             # Generate one integer after another
-                                             # from the function
-                                             ("<integer>", opts(pre=iterate)),
-                                         ],
-                                     })
-
 class GeneratorGrammarFuzzer(GeneratorGrammarFuzzer):
     def fuzz_tree(self) -> DerivationTree:
         self.reset_generators()
@@ -336,42 +264,18 @@ class GeneratorGrammarFuzzer(GeneratorGrammarFuzzer):
         generator = self.generators[key]
         return next(generator)
 
-# if __name__ == '__main__':
-#     iterate_fuzzer = GeneratorGrammarFuzzer(iterate_grammar)
-#     iterate_fuzzer.compute_cost()
-#     iterate_fuzzer.fuzz()
-
-if __name__ == '__main__':
-    iterate_grammar = extend_grammar(EXPR_GRAMMAR,
-                                     {
-                                         "<factor>": [
-                                             "+<factor>", "-<factor>", "(<expr>)",
-                                             ("<integer>", opts(pre=range(1, 1000))),
-                                         ],
-                                     })
-
-if __name__ == '__main__':
-    iterate_grammar = extend_grammar(EXPR_GRAMMAR,
-                                     {
-                                         "<factor>": [
-                                             "+<factor>", "-<factor>", "(<expr>)",
-                                             ("<integer>", opts(
-                                                 pre=(x for x in range(1, 1000)))),
-                                         ],
-                                     })
-
 ## Checking and Repairing Elements after Expansion
 ## -----------------------------------------------
 
 class GeneratorGrammarFuzzer(GeneratorGrammarFuzzer):
-    def fuzz_tree(self) -> DerivationTree:
-        while True:
-            tree = super().fuzz_tree()
-            (symbol, children) = tree
-            result, new_children = self.run_post_functions(tree)
-            if not isinstance(result, bool) or result:
-                return (symbol, new_children)
-            self.restart_expansion()
+    # def fuzz_tree(self) -> DerivationTree:
+    #     while True:
+    #         tree = super().fuzz_tree()
+    #         (symbol, children) = tree
+    #         result, new_children = self.run_post_functions(tree)
+    #         if not isinstance(result, bool) or result:
+    #             return (symbol, new_children)
+    #         self.restart_expansion()
 
     def restart_expansion(self) -> None:
         # To be overloaded in subclasses
@@ -419,11 +323,17 @@ class GeneratorGrammarFuzzer(GeneratorGrammarFuzzer):
 
 class GeneratorGrammarFuzzer(GeneratorGrammarFuzzer):
     def find_expansion(self, tree):
+        # 输入一个tree，这个tree是整个已经生成好了的。然后我们遍历tree root
+        # 所有可能的expansion，找出我们这一步是用哪个expansion生成的，找到
+        # 之后就返回这个expansion。
         symbol, children = tree
-
+        
+        # children是[child symbol, subtree]
         applied_expansion = \
             "".join([child_symbol for child_symbol, _ in children])
 
+        # 对于symbol的每个expansion，如果我们生成的结果string等于当前的expansion
+        # 就认定当前的subtree是用这个expansion expand出来的。
         for expansion in self.grammar[symbol]:
             if exp_string(expansion) == applied_expansion:
                 return expansion
@@ -479,9 +389,6 @@ if __name__ == '__main__':
 ### Example: Matching XML Tags
 from bookutils import HTML
 
-if __name__ == '__main__':
-    HTML("<strong>A bold text</strong>")
-
 XML_GRAMMAR: Grammar = {
     "<start>": ["<xml-tree>"],
     "<xml-tree>": ["<<id>><xml-content></<id>>"],
@@ -490,43 +397,11 @@ XML_GRAMMAR: Grammar = {
     "<letter>": crange('a', 'z')
 }
 
-if __name__ == '__main__':
-    assert is_valid_grammar(XML_GRAMMAR)
-
-if __name__ == '__main__':
-    xml_fuzzer = GrammarFuzzer(XML_GRAMMAR)
-    xml_fuzzer.compute_cost()
-    xml_fuzzer.fuzz()
-
 XML_GRAMMAR.update({
     "<xml-tree>": [("<<id>><xml-content></<id>>",
                     opts(post=lambda id1, content, id2: [None, None, id1])
                     )]
 })
-
-if __name__ == '__main__':
-    assert is_valid_grammar(XML_GRAMMAR)
-
-if __name__ == '__main__':
-    xml_fuzzer = GeneratorGrammarFuzzer(XML_GRAMMAR)
-    xml_fuzzer.compute_cost()
-    xml_fuzzer.fuzz()
-
-### Example: Checksums
-if __name__ == '__main__':
-    credit_card_fuzzer = GeneratorGrammarFuzzer(
-        CHARGE_GRAMMAR, start_symbol="<credit-card-number>")
-    credit_card_fuzzer.compute_cost()
-    credit_card_number = credit_card_fuzzer.fuzz()
-    credit_card_number
-
-if __name__ == '__main__':
-    assert valid_luhn_checksum(credit_card_number)
-
-if __name__ == '__main__':
-    charge_fuzzer = GeneratorGrammarFuzzer(CHARGE_GRAMMAR)
-    charge_fuzzer.compute_cost()
-    charge_fuzzer.fuzz()
 
 
 ## Local Checking and Repairing
@@ -690,28 +565,6 @@ CONSTRAINED_VAR_GRAMMAR = extend_grammar(CONSTRAINED_VAR_GRAMMAR, {
 if __name__ == '__main__':
     assert is_valid_grammar(CONSTRAINED_VAR_GRAMMAR)
 
-# if __name__ == '__main__':
-#     var_grammar_fuzzer = GeneratorGrammarFuzzer(CONSTRAINED_VAR_GRAMMAR)
-#     var_grammar_fuzzer.compute_cost()
-#     for i in range(10):
-#         print(var_grammar_fuzzer.fuzz())
-
-## Ordering Expansions
-## -------------------
-# if __name__ == '__main__':
-#     var_grammar_fuzzer = GeneratorGrammarFuzzer(CONSTRAINED_VAR_GRAMMAR)
-#     var_grammar_fuzzer.compute_cost()
-#     with ExpectError():
-#         for i in range(100):
-#             s = var_grammar_fuzzer.fuzz()
-#             try:
-#                 exec(s, {}, {})
-#             except SyntaxError:
-#                 continue
-#             except ZeroDivisionError:
-#                 continue
-#     print(s)
-
 CONSTRAINED_VAR_GRAMMAR = extend_grammar(CONSTRAINED_VAR_GRAMMAR, {
     "<statements>": [("<statement>;<statements>", opts(order=[1, 2])),
                      "<statement>"]
@@ -726,68 +579,51 @@ def exp_order(expansion):
     """Return the specified expansion ordering, or None if unspecified"""
     return exp_opt(expansion, 'order')
 
-class GeneratorGrammarFuzzer(GeneratorGrammarFuzzer):
-    def choose_tree_expansion(self, tree: DerivationTree,
-                              expandable_children: List[DerivationTree]) \
-                              -> int:
-        """Return index of subtree in `expandable_children`
-           to be selected for expansion. Defaults to random."""
-        (symbol, tree_children) = tree
-        assert isinstance(tree_children, list)
+# class GeneratorGrammarFuzzer(GeneratorGrammarFuzzer):
+#     def choose_tree_expansion(self, tree: DerivationTree,
+#                               expandable_children: List[DerivationTree]) \
+#                               -> int:
+#         """Return index of subtree in `expandable_children`
+#            to be selected for expansion. Defaults to random."""
+#         (symbol, tree_children) = tree
+#         assert isinstance(tree_children, list)
 
-        if len(expandable_children) == 1:
-            # No choice
-            return super().choose_tree_expansion(tree, expandable_children)
+#         if len(expandable_children) == 1:
+#             # No choice
+#             return super().choose_tree_expansion(tree, expandable_children)
 
-        expansion = self.find_expansion(tree)
-        given_order = exp_order(expansion)
-        if given_order is None:
-            # No order specified
-            return super().choose_tree_expansion(tree, expandable_children)
+#         expansion = self.find_expansion(tree)
+#         given_order = exp_order(expansion)
+#         if given_order is None:
+#             # No order specified
+#             return super().choose_tree_expansion(tree, expandable_children)
 
-        nonterminal_children = [c for c in tree_children if c[1] != []]
-        assert len(nonterminal_children) == len(given_order), \
-            "Order must have one element for each nonterminal"
+#         nonterminal_children = [c for c in tree_children if c[1] != []]
+#         assert len(nonterminal_children) == len(given_order), \
+#             "Order must have one element for each nonterminal"
 
-        # Find expandable child with lowest ordering
-        min_given_order = None
-        j = 0
-        for k, expandable_child in enumerate(expandable_children):
-            while j < len(
-                    nonterminal_children) and expandable_child != nonterminal_children[j]:
-                j += 1
-            assert j < len(nonterminal_children), "Expandable child not found"
-            if self.log:
-                print("Expandable child #%d %s has order %d" %
-                      (k, expandable_child[0], given_order[j]))
+#         # Find expandable child with lowest ordering
+#         min_given_order = None
+#         j = 0
+#         for k, expandable_child in enumerate(expandable_children):
+#             while j < len(
+#                     nonterminal_children) and expandable_child != nonterminal_children[j]:
+#                 j += 1
+#             assert j < len(nonterminal_children), "Expandable child not found"
+#             if self.log:
+#                 print("Expandable child #%d %s has order %d" %
+#                       (k, expandable_child[0], given_order[j]))
 
-            if min_given_order is None or given_order[j] < min_given_order:
-                min_given_order = k
+#             if min_given_order is None or given_order[j] < min_given_order:
+#                 min_given_order = k
 
-        assert min_given_order is not None
+#         assert min_given_order is not None
 
-        if self.log:
-            print("Returning expandable child #%d %s" %
-                  (min_given_order, expandable_children[min_given_order][0]))
+#         if self.log:
+#             print("Returning expandable child #%d %s" %
+#                   (min_given_order, expandable_children[min_given_order][0]))
 
-        return min_given_order
-
-# if __name__ == '__main__':
-#     var_grammar_fuzzer = GeneratorGrammarFuzzer(CONSTRAINED_VAR_GRAMMAR)
-#     var_grammar_fuzzer.compute_cost()
-#     for i in range(100):
-#         s = var_grammar_fuzzer.fuzz()
-#         if i < 10:
-#             print(s)
-#         try:
-#             exec(s, {}, {})
-#         except SyntaxError:
-#             continue
-#         except ZeroDivisionError:
-#             continue
-
-## All Together
-## ------------
+#         return min_given_order
 
 ### Generators and Probabilistic Fuzzing
 
