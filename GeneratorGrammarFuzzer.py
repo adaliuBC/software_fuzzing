@@ -85,40 +85,8 @@ For more details, source, and documentation, see
 "The Fuzzing Book - Fuzzing with Generators"
 at https://www.fuzzingbook.org/html/GeneratorGrammarFuzzer.html
 '''
-
-
-# Fuzzing with Generators
-# =======================
-
-if __name__ == '__main__':
-    print('# Fuzzing with Generators')
-
-
-
-if __name__ == '__main__':
-    from bookutils import YouTubeVideo
-    YouTubeVideo('oeMxtboPD_s')
-
-## Synopsis
-## --------
-
-if __name__ == '__main__':
-    print('\n## Synopsis')
-
-
-
-## Example: Test a Credit Card System
-## ----------------------------------
-
-if __name__ == '__main__':
-    print('\n## Example: Test a Credit Card System')
-
-
-
-if __name__ == '__main__':
-    # We use the same fixed seed as the notebook to ensure consistency
-    import random
-    random.seed(2001)
+import random
+random.seed(2001)
 
 from typing import Callable, Set, List, Dict, Optional, Iterator, Any, Union, Tuple, cast
 
@@ -148,22 +116,13 @@ from GrammarFuzzer import GrammarFuzzer, all_terminals
 
 if __name__ == '__main__':
     g = GrammarFuzzer(CHARGE_GRAMMAR)
+    g.compute_cost()
     [g.fuzz() for i in range(5)]
 
 ## Attaching Functions to Expansions
 ## ---------------------------------
 
-if __name__ == '__main__':
-    print('\n## Attaching Functions to Expansions')
-
-
-
 ### Functions Called Before Expansion
-
-if __name__ == '__main__':
-    print('\n### Functions Called Before Expansion')
-
-
 
 import random
 
@@ -185,12 +144,8 @@ CHARGE_GRAMMAR.update({
                  opts(pre=lambda: random.randint(10000000, 90000000) / 100.0))]
 })
 
+
 ### Functions Called After Expansion
-
-if __name__ == '__main__':
-    print('\n### Functions Called After Expansion')
-
-
 
 CHARGE_GRAMMAR.update({
     "<credit-card-number>": [("<digits>", opts(post=lambda digits: check_credit_card(digits)))]
@@ -218,28 +173,17 @@ def fix_luhn_checksum(s: str) -> str:
     return s[:-1] + repr(luhn_checksum(s[:-1]))
 
 if __name__ == '__main__':
-    luhn_checksum("123")
-
-if __name__ == '__main__':
-    fix_luhn_checksum("123x")
-
-if __name__ == '__main__':
     check_credit_card: Callable[[str], bool] = valid_luhn_checksum
     fix_credit_card: Callable[[str], str] = fix_luhn_checksum
 
-if __name__ == '__main__':
-    fix_credit_card("1234567890123456")
-
 ## A Class for Integrating Constraints
 ## -----------------------------------
-
-if __name__ == '__main__':
-    print('\n## A Class for Integrating Constraints')
 
 
 
 if __name__ == '__main__':
     g = GrammarFuzzer(CHARGE_GRAMMAR)
+    g.compute_cost()
     g.fuzz()
 
 class GeneratorGrammarFuzzer(GrammarFuzzer):
@@ -256,12 +200,6 @@ def exp_post_expansion_function(expansion: Expansion) -> Optional[Callable]:
 
 ## Generating Elements before Expansion
 ## ------------------------------------
-
-if __name__ == '__main__':
-    print('\n## Generating Elements before Expansion')
-
-
-
 import inspect
 
 class GeneratorGrammarFuzzer(GeneratorGrammarFuzzer):
@@ -281,9 +219,6 @@ class GeneratorGrammarFuzzer(GeneratorGrammarFuzzer):
         if self.log:
             print(repr(function) + "()", "=", repr(result))
         return self.apply_result(result, children)
-
-    def run_generator(self, expansion: Expansion, function: Callable):
-        ...
 
 class GeneratorGrammarFuzzer(GeneratorGrammarFuzzer):
     def apply_result(self, result: Any,
@@ -320,59 +255,45 @@ class GeneratorGrammarFuzzer(GeneratorGrammarFuzzer):
 
         return children
 
-### Example: Numeric Ranges
-
-if __name__ == '__main__':
-    print('\n### Example: Numeric Ranges')
-
-
-
 if __name__ == '__main__':
     charge_fuzzer = GeneratorGrammarFuzzer(CHARGE_GRAMMAR)
+    charge_fuzzer.compute_cost()
     charge_fuzzer.fuzz()
 
 if __name__ == '__main__':
     amount_fuzzer = GeneratorGrammarFuzzer(
         CHARGE_GRAMMAR, start_symbol="<amount>", log=True)
+    amount_fuzzer.compute_cost()
     amount_fuzzer.fuzz()
 
 ### Example: More Numeric Ranges
 
-if __name__ == '__main__':
-    print('\n### Example: More Numeric Ranges')
+# if __name__ == '__main__':
+#     expr_100_200_grammar = extend_grammar(EXPR_GRAMMAR,
+#                                           {
+#                                               "<factor>": [
+#                                                   "+<factor>", "-<factor>", "(<expr>)",
 
+#                                                   # Generate only the integer part with a function;
+#                                                   # the fractional part comes from
+#                                                   # the grammar
+#                                                   ("<integer>.<integer>", opts(
+#                                                       pre=lambda: [random.randint(100, 200), None])),
 
+#                                                   # Generate the entire integer
+#                                                   # from the function
+#                                                   ("<integer>", opts(
+#                                                       pre=lambda: random.randint(100, 200))),
+#                                               ],
+#                                           }
+#                                           )
 
-if __name__ == '__main__':
-    expr_100_200_grammar = extend_grammar(EXPR_GRAMMAR,
-                                          {
-                                              "<factor>": [
-                                                  "+<factor>", "-<factor>", "(<expr>)",
-
-                                                  # Generate only the integer part with a function;
-                                                  # the fractional part comes from
-                                                  # the grammar
-                                                  ("<integer>.<integer>", opts(
-                                                      pre=lambda: [random.randint(100, 200), None])),
-
-                                                  # Generate the entire integer
-                                                  # from the function
-                                                  ("<integer>", opts(
-                                                      pre=lambda: random.randint(100, 200))),
-                                              ],
-                                          }
-                                          )
-
-if __name__ == '__main__':
-    expr_100_200_fuzzer = GeneratorGrammarFuzzer(expr_100_200_grammar)
-    expr_100_200_fuzzer.fuzz()
+# if __name__ == '__main__':
+#     expr_100_200_fuzzer = GeneratorGrammarFuzzer(expr_100_200_grammar)
+#     expr_100_200_fuzzer.compute_cost()
+#     expr_100_200_fuzzer.fuzz()
 
 ### Support for Python Generators
-
-if __name__ == '__main__':
-    print('\n### Support for Python Generators')
-
-
 
 def iterate():
     t = 0
@@ -415,9 +336,10 @@ class GeneratorGrammarFuzzer(GeneratorGrammarFuzzer):
         generator = self.generators[key]
         return next(generator)
 
-if __name__ == '__main__':
-    iterate_fuzzer = GeneratorGrammarFuzzer(iterate_grammar)
-    iterate_fuzzer.fuzz()
+# if __name__ == '__main__':
+#     iterate_fuzzer = GeneratorGrammarFuzzer(iterate_grammar)
+#     iterate_fuzzer.compute_cost()
+#     iterate_fuzzer.fuzz()
 
 if __name__ == '__main__':
     iterate_grammar = extend_grammar(EXPR_GRAMMAR,
@@ -440,11 +362,6 @@ if __name__ == '__main__':
 
 ## Checking and Repairing Elements after Expansion
 ## -----------------------------------------------
-
-if __name__ == '__main__':
-    print('\n## Checking and Repairing Elements after Expansion')
-
-
 
 class GeneratorGrammarFuzzer(GeneratorGrammarFuzzer):
     def fuzz_tree(self) -> DerivationTree:
@@ -535,12 +452,6 @@ class GeneratorGrammarFuzzer(GeneratorGrammarFuzzer):
         return result
 
 ### Example: Negative Expressions
-
-if __name__ == '__main__':
-    print('\n### Example: Negative Expressions')
-
-
-
 from ExpectError import ExpectError
 
 def eval_with_exception(s):
@@ -558,21 +469,14 @@ if __name__ == '__main__':
 
     assert is_valid_grammar(negative_expr_grammar)
 
-if __name__ == '__main__':
-    negative_expr_fuzzer = GeneratorGrammarFuzzer(negative_expr_grammar)
-    expr = negative_expr_fuzzer.fuzz()
-    expr
-
-if __name__ == '__main__':
-    eval(expr)
+# if __name__ == '__main__':
+#     negative_expr_fuzzer = GeneratorGrammarFuzzer(negative_expr_grammar)
+#     negative_expr_fuzzer.compute_cost()
+#     expr = negative_expr_fuzzer.fuzz()
+#     print(expr)
+#     eval(expr)
 
 ### Example: Matching XML Tags
-
-if __name__ == '__main__':
-    print('\n### Example: Matching XML Tags')
-
-
-
 from bookutils import HTML
 
 if __name__ == '__main__':
@@ -591,6 +495,7 @@ if __name__ == '__main__':
 
 if __name__ == '__main__':
     xml_fuzzer = GrammarFuzzer(XML_GRAMMAR)
+    xml_fuzzer.compute_cost()
     xml_fuzzer.fuzz()
 
 XML_GRAMMAR.update({
@@ -604,18 +509,14 @@ if __name__ == '__main__':
 
 if __name__ == '__main__':
     xml_fuzzer = GeneratorGrammarFuzzer(XML_GRAMMAR)
+    xml_fuzzer.compute_cost()
     xml_fuzzer.fuzz()
 
 ### Example: Checksums
-
-if __name__ == '__main__':
-    print('\n### Example: Checksums')
-
-
-
 if __name__ == '__main__':
     credit_card_fuzzer = GeneratorGrammarFuzzer(
         CHARGE_GRAMMAR, start_symbol="<credit-card-number>")
+    credit_card_fuzzer.compute_cost()
     credit_card_number = credit_card_fuzzer.fuzz()
     credit_card_number
 
@@ -624,16 +525,12 @@ if __name__ == '__main__':
 
 if __name__ == '__main__':
     charge_fuzzer = GeneratorGrammarFuzzer(CHARGE_GRAMMAR)
+    charge_fuzzer.compute_cost()
     charge_fuzzer.fuzz()
+
 
 ## Local Checking and Repairing
 ## ----------------------------
-
-if __name__ == '__main__':
-    print('\n## Local Checking and Repairing')
-
-
-
 if __name__ == '__main__':
     binary_expr_grammar = extend_grammar(EXPR_GRAMMAR,
                                          {
@@ -647,7 +544,8 @@ if __name__ == '__main__':
 
 if __name__ == '__main__':
     binary_expr_fuzzer = GeneratorGrammarFuzzer(binary_expr_grammar)
-    binary_expr_fuzzer.fuzz()
+    #binary_expr_fuzzer.compute_cost()
+    #binary_expr_fuzzer.fuzz()
 
 class RestartExpansionException(Exception):
     pass
@@ -722,15 +620,11 @@ class GeneratorGrammarFuzzer(GeneratorGrammarFuzzer):
 if __name__ == '__main__':
     binary_expr_fuzzer = GeneratorGrammarFuzzer(
         binary_expr_grammar, replacement_attempts=100)
-    binary_expr_fuzzer.fuzz()
+    #binary_expr_fuzzer.compute_cost()
+    #binary_expr_fuzzer.fuzz()
 
 ## Definitions and Uses
 ## --------------------
-
-if __name__ == '__main__':
-    print('\n## Definitions and Uses')
-
-
 
 import string
 
@@ -754,10 +648,11 @@ VAR_GRAMMAR: Grammar = {
 if __name__ == '__main__':
     assert is_valid_grammar(VAR_GRAMMAR)
 
-if __name__ == '__main__':
-    g = GrammarFuzzer(VAR_GRAMMAR)
-    for i in range(10):
-        print(g.fuzz())
+# if __name__ == '__main__':
+#     g = GrammarFuzzer(VAR_GRAMMAR)
+#     g.compute_cost()
+#     for i in range(10):
+#         print(g.fuzz())
 
 SYMBOL_TABLE: Set[str] = set()
 
@@ -795,31 +690,27 @@ CONSTRAINED_VAR_GRAMMAR = extend_grammar(CONSTRAINED_VAR_GRAMMAR, {
 if __name__ == '__main__':
     assert is_valid_grammar(CONSTRAINED_VAR_GRAMMAR)
 
-if __name__ == '__main__':
-    var_grammar_fuzzer = GeneratorGrammarFuzzer(CONSTRAINED_VAR_GRAMMAR)
-    for i in range(10):
-        print(var_grammar_fuzzer.fuzz())
+# if __name__ == '__main__':
+#     var_grammar_fuzzer = GeneratorGrammarFuzzer(CONSTRAINED_VAR_GRAMMAR)
+#     var_grammar_fuzzer.compute_cost()
+#     for i in range(10):
+#         print(var_grammar_fuzzer.fuzz())
 
 ## Ordering Expansions
 ## -------------------
-
-if __name__ == '__main__':
-    print('\n## Ordering Expansions')
-
-
-
-if __name__ == '__main__':
-    var_grammar_fuzzer = GeneratorGrammarFuzzer(CONSTRAINED_VAR_GRAMMAR)
-    with ExpectError():
-        for i in range(100):
-            s = var_grammar_fuzzer.fuzz()
-            try:
-                exec(s, {}, {})
-            except SyntaxError:
-                continue
-            except ZeroDivisionError:
-                continue
-    print(s)
+# if __name__ == '__main__':
+#     var_grammar_fuzzer = GeneratorGrammarFuzzer(CONSTRAINED_VAR_GRAMMAR)
+#     var_grammar_fuzzer.compute_cost()
+#     with ExpectError():
+#         for i in range(100):
+#             s = var_grammar_fuzzer.fuzz()
+#             try:
+#                 exec(s, {}, {})
+#             except SyntaxError:
+#                 continue
+#             except ZeroDivisionError:
+#                 continue
+#     print(s)
 
 CONSTRAINED_VAR_GRAMMAR = extend_grammar(CONSTRAINED_VAR_GRAMMAR, {
     "<statements>": [("<statement>;<statements>", opts(order=[1, 2])),
@@ -881,33 +772,24 @@ class GeneratorGrammarFuzzer(GeneratorGrammarFuzzer):
 
         return min_given_order
 
-if __name__ == '__main__':
-    var_grammar_fuzzer = GeneratorGrammarFuzzer(CONSTRAINED_VAR_GRAMMAR)
-    for i in range(100):
-        s = var_grammar_fuzzer.fuzz()
-        if i < 10:
-            print(s)
-        try:
-            exec(s, {}, {})
-        except SyntaxError:
-            continue
-        except ZeroDivisionError:
-            continue
+# if __name__ == '__main__':
+#     var_grammar_fuzzer = GeneratorGrammarFuzzer(CONSTRAINED_VAR_GRAMMAR)
+#     var_grammar_fuzzer.compute_cost()
+#     for i in range(100):
+#         s = var_grammar_fuzzer.fuzz()
+#         if i < 10:
+#             print(s)
+#         try:
+#             exec(s, {}, {})
+#         except SyntaxError:
+#             continue
+#         except ZeroDivisionError:
+#             continue
 
 ## All Together
 ## ------------
 
-if __name__ == '__main__':
-    print('\n## All Together')
-
-
-
 ### Generators and Probabilistic Fuzzing
-
-if __name__ == '__main__':
-    print('\n### Generators and Probabilistic Fuzzing')
-
-
 
 from ProbabilisticGrammarFuzzer import ProbabilisticGrammarFuzzer  # minor dependency
 
@@ -941,21 +823,14 @@ CONSTRAINED_VAR_GRAMMAR.update({
                '<alpha>'],
 })
 
-if __name__ == '__main__':
-    pgg_fuzzer = ProbabilisticGeneratorGrammarFuzzer(CONSTRAINED_VAR_GRAMMAR)
-    pgg_fuzzer.supported_opts()
-
-if __name__ == '__main__':
-    pgg_fuzzer.fuzz()
+# if __name__ == '__main__':
+#     pgg_fuzzer = ProbabilisticGeneratorGrammarFuzzer(CONSTRAINED_VAR_GRAMMAR)
+#     pgg_fuzzer.supported_opts()
+#     pgg_fuzzer.compute_cost()
+#     pgg_fuzzer.fuzz()
 
 # Generators and Grammar Coverage
 # ===============================
-
-if __name__ == '__main__':
-    print('\n# Generators and Grammar Coverage')
-
-
-
 from ProbabilisticGrammarFuzzer import ProbabilisticGrammarCoverageFuzzer  # minor dependency
 
 from GrammarCoverageFuzzer import GrammarCoverageFuzzer  # minor dependency
@@ -1017,29 +892,47 @@ class ProbabilisticGeneratorGrammarCoverageFuzzer(
         super().restart_expansion()
         self.covered_expansions = self.orig_covered_expansions
 
-if __name__ == '__main__':
-    pggc_fuzzer = ProbabilisticGeneratorGrammarCoverageFuzzer(
-        CONSTRAINED_VAR_GRAMMAR)
-    pggc_fuzzer.fuzz()
+# if __name__ == '__main__':
+#     pggc_fuzzer = ProbabilisticGeneratorGrammarCoverageFuzzer(
+#         CONSTRAINED_VAR_GRAMMAR)
+#     pggc_fuzzer.compute_cost()
+#     pggc_fuzzer.fuzz()
 
-if __name__ == '__main__':
-    pggc_fuzzer.expansion_coverage()
+#     pggc_fuzzer.expansion_coverage()
 
-if __name__ == '__main__':
-    [pggc_fuzzer.fuzz() for i in range(10)]
+#     [pggc_fuzzer.fuzz() for i in range(10)]
 
 class PGGCFuzzer(ProbabilisticGeneratorGrammarCoverageFuzzer):
     """The one grammar-based fuzzer that supports all fuzzingbook features"""
     pass
 
+from scssGrammar import SCSS_GRAMMAR
+if __name__ == '__main__':
+    print("--------SEE HERE")
+    f = PGGCFuzzer(SCSS_GRAMMAR, min_nonterminals=3, max_nonterminals=50, log=True)
+    f.check_grammar()
+    f.compute_cost()
+    f.fuzz()
+    treeFig = display_tree(f.derivation_tree)
+    treeFig.render(directory="./output/", filename="scss_grammar_tree", view=True)
+    scssText = all_terminals(f.derivation_tree)
+    # with open("try.txt", "w") as f:
+    #     f.write(scssText)
+    print("generated scss code:\n", scssText)
+    
+    cssText = Compiler().compile_string(scssText)
+    print("generated css code:\n", cssText)
+    '''
+    with Coverage() as cov:
+        css = Compiler().compile_string(scss)
+    #pdb.set_trace()
+    trace = cov.trace()
+    coverage = cov.coverage()
+    print(coverage)
+    '''
+
 ## Synopsis
 ## --------
-
-if __name__ == '__main__':
-    print('\n## Synopsis')
-
-
-
 from Grammars import US_PHONE_GRAMMAR, extend_grammar, opts
 
 def pick_area_code():
@@ -1050,9 +943,10 @@ PICKED_US_PHONE_GRAMMAR = extend_grammar(US_PHONE_GRAMMAR,
     "<area>": [("<lead-digit><digit><digit>", opts(pre=pick_area_code))]
 })
 
-if __name__ == '__main__':
-    picked_us_phone_fuzzer = GeneratorGrammarFuzzer(PICKED_US_PHONE_GRAMMAR)
-    [picked_us_phone_fuzzer.fuzz() for i in range(5)]
+# if __name__ == '__main__':
+#     picked_us_phone_fuzzer = GeneratorGrammarFuzzer(PICKED_US_PHONE_GRAMMAR)
+#     picked_us_phone_fuzzer.compute_cost()
+#     [picked_us_phone_fuzzer.fuzz() for i in range(5)]
 
 from ClassDiagram import display_class_hierarchy
 
@@ -1079,8 +973,6 @@ if __name__ == '__main__':
                                 'Grammar': Grammar
                             },
                             project='fuzzingbook')
-
-
 
 ATTR_GRAMMAR = {
     "<clause>": [("<xml-open>Text<xml-close>", opts(post=lambda x1, x2: [None, x1.name]))],
