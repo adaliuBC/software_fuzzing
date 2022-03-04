@@ -75,20 +75,32 @@ For more details, source, and documentation, see
 at https://www.fuzzingbook.org/html/ProbabilisticGrammarFuzzer.html
 '''
 
-
-
 # Probabilistic Grammar Fuzzing
 # =============================
 
 ## The Law of Leading Digits
 ## -------------------------
+
+from Fuzzer import Fuzzer
+from ExpectError import ExpectError
+
+from GrammarFuzzer import GrammarFuzzer, all_terminals, display_tree, DerivationTree
+
+from Grammars import is_valid_grammar, EXPR_GRAMMAR, START_SYMBOL, crange
+from Grammars import opts, exp_string, exp_opt, set_opts
+from Grammars import Grammar, Expansion
+
+from typing import List, Dict, Set, Optional, cast, Any, Tuple
+
 import math
+
+import matplotlib.pyplot as plt  # type: ignore
+
+import random
+random.seed(2001)
 
 def first_digit_via_string(x: int) -> int:
     return ord(repr(x)[0]) - ord('0')
-
-if __name__ == '__main__':
-    print("First digit via str: ", first_digit_via_string(2001))
 
 def first_digit_via_log(x: int) -> int:
     """
@@ -98,43 +110,9 @@ def first_digit_via_log(x: int) -> int:
     frac, whole = math.modf(math.log10(x))
     return int(10 ** frac)
 
-if __name__ == '__main__':
-    print("First digit via log: ", first_digit_via_log(2001))
-
 def prob_leading_digit(d: int) -> float:
     return math.log10(d + 1) - math.log10(d)
 
-
-import matplotlib.pyplot as plt  # type: ignore
-
-if __name__ == '__main__':
-    print("All digits' distribution")
-    digit_probs = [prob_leading_digit(d) for d in range(1, 10)]
-    [(d, "%.2f" % digit_probs[d - 1]) for d in range(1, 10)]
-    labels = range(1, 10)
-    fig1, ax1 = plt.subplots()
-    ax1.pie(digit_probs, labels=labels, shadow=True, autopct='%1.1f%%',
-            counterclock=False, startangle=90)
-    ax1.axis('equal')
-    plt.show()
-
-
-## Specifying Probabilities
-## ------------------------
-if __name__ == '__main__':
-    # We use the same fixed seed as the notebook to ensure consistency
-    import random
-    random.seed(2001)
-
-from Fuzzer import Fuzzer
-
-from GrammarFuzzer import GrammarFuzzer, all_terminals, display_tree, DerivationTree
-
-from Grammars import is_valid_grammar, EXPR_GRAMMAR, START_SYMBOL, crange
-from Grammars import opts, exp_string, exp_opt, set_opts
-from Grammars import Grammar, Expansion
-
-from typing import List, Dict, Set, Optional, cast, Any, Tuple
 
 PROBABILISTIC_EXPR_GRAMMAR: Grammar = {
     "<start>":
@@ -179,32 +157,19 @@ PROBABILISTIC_EXPR_GRAMMAR: Grammar = {
         ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
 }
 
-if __name__ == '__main__':
-    assert is_valid_grammar(PROBABILISTIC_EXPR_GRAMMAR, supported_opts={'prob'})
-
-    print("Leading Digits Expression:")
-    leaddigits: List[Expansion] = PROBABILISTIC_EXPR_GRAMMAR["<leaddigit>"]
-    print(leaddigits)
-
-    leaddigit_expansion = leaddigits[0]
-    print(leaddigit_expansion)
-
-    print("Digit is: ", exp_string(leaddigit_expansion))
-
 def exp_prob(expansion: Expansion) -> float:
     """Return the options of an expansion - 取出expansion中的prob"""
     return exp_opt(expansion, 'prob')
 
-if __name__ == '__main__':
-    print("Opt is: ", exp_prob(leaddigit_expansion))
-
+# 打印一个看看
 if __name__ == '__main__':
     f = GrammarFuzzer(PROBABILISTIC_EXPR_GRAMMAR)
     f.fuzz()
+    print(all_terminals(f.derivation_tree))
 
-'''
+
 from GrammarCoverageFuzzer import GrammarCoverageFuzzer  # minor dependency
-
+'''
 # here we use the existing fuzzer without prob takes effect
 if __name__ == '__main__':
     f = GrammarCoverageFuzzer(PROBABILISTIC_EXPR_GRAMMAR)
@@ -263,13 +228,6 @@ def exp_probabilities(expansions: List[Expansion],
 
     return prob_mapping
 
-
-if __name__ == '__main__':
-    print(exp_probabilities(PROBABILISTIC_EXPR_GRAMMAR["<leaddigit>"]))
-    print(exp_probabilities(PROBABILISTIC_EXPR_GRAMMAR["<digit>"]))
-    exp_probabilities(PROBABILISTIC_EXPR_GRAMMAR["<expr>"])
-
-
 ### Checking Probabilities
 def is_valid_probabilistic_grammar(grammar: Grammar,
                                    start_symbol: str = START_SYMBOL) -> bool:
@@ -285,14 +243,10 @@ def is_valid_probabilistic_grammar(grammar: Grammar,
 
     return True
 
-from ExpectError import ExpectError
 
 
 ## Expanding by Probability
 ## ------------------------
-
-import random
-
 class ProbabilisticGrammarFuzzer(GrammarFuzzer):
     """A grammar-based fuzzer respecting probabilities in grammars."""
 
@@ -309,7 +263,6 @@ class ProbabilisticGrammarFuzzer(GrammarFuzzer):
         """
         return super().supported_opts() | {'prob'}
 
-class ProbabilisticGrammarFuzzer(ProbabilisticGrammarFuzzer):
     def choose_node_expansion(self, node: DerivationTree,
                               children_alternatives: List[Any]) -> int:
         """
@@ -334,36 +287,6 @@ class ProbabilisticGrammarFuzzer(ProbabilisticGrammarFuzzer):
         else:
             return random.choices(
                 range(len(children_alternatives)), weights=weights)[0]
-
-if __name__ == '__main__':
-    print("Prob expression grammar:")
-    natural_fuzzer = ProbabilisticGrammarFuzzer(
-        PROBABILISTIC_EXPR_GRAMMAR, start_symbol="<leadinteger>")
-    print([natural_fuzzer.fuzz() for i in range(20)])
-
-    integer_fuzzer = GrammarFuzzer(
-        PROBABILISTIC_EXPR_GRAMMAR, start_symbol="<leadinteger>")
-    print([integer_fuzzer.fuzz() for i in range(20)])
-
-    leaddigit_fuzzer = ProbabilisticGrammarFuzzer(
-        PROBABILISTIC_EXPR_GRAMMAR, start_symbol="<leaddigit>")
-    leaddigit_fuzzer.fuzz()
-    print("Prob expression grammar end\n")
-
-
-### 跑一些trials，发现真的符合Benford's law
-if __name__ == '__main__':
-    trials = 10000
-
-    count = {}
-    for c in crange('0', '9'):
-        count[c] = 0
-
-    for i in range(trials):
-        count[leaddigit_fuzzer.fuzz()] += 1
-
-    print([(digit, count[digit] / trials) for digit in count])
-
 
 ## Directed Fuzzing
 ## ----------------
@@ -834,11 +757,7 @@ if __name__ == '__main__':
                             project='fuzzingbook')
 
 
-'''
-## Exercises
-## ---------
 
-### Exercise 1: Probabilistic Fuzzing with Coverage
 
 from bookutils import inheritance_conflicts
 
@@ -879,9 +798,4 @@ if __name__ == '__main__':
 
     print([(digit, count[digit] / trials) for digit in count])
 
-### Exercise 2: Learning from Past Bugs
 
-if __name__ == '__main__':
-    print('\n### Exercise 2: Learning from Past Bugs')
-
-'''

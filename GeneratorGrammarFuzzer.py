@@ -86,6 +86,7 @@ For more details, source, and documentation, see
 at https://www.fuzzingbook.org/html/GeneratorGrammarFuzzer.html
 '''
 
+
 # Fuzzing with Generators
 # =======================
 
@@ -147,7 +148,6 @@ from GrammarFuzzer import GrammarFuzzer, all_terminals
 
 if __name__ == '__main__':
     g = GrammarFuzzer(CHARGE_GRAMMAR)
-    g.compute_cost()
     [g.fuzz() for i in range(5)]
 
 ## Attaching Functions to Expansions
@@ -240,7 +240,6 @@ if __name__ == '__main__':
 
 if __name__ == '__main__':
     g = GrammarFuzzer(CHARGE_GRAMMAR)
-    g.compute_cost()
     g.fuzz()
 
 class GeneratorGrammarFuzzer(GrammarFuzzer):
@@ -330,13 +329,11 @@ if __name__ == '__main__':
 
 if __name__ == '__main__':
     charge_fuzzer = GeneratorGrammarFuzzer(CHARGE_GRAMMAR)
-    charge_fuzzer.compute_cost()
     charge_fuzzer.fuzz()
 
 if __name__ == '__main__':
     amount_fuzzer = GeneratorGrammarFuzzer(
         CHARGE_GRAMMAR, start_symbol="<amount>", log=True)
-    amount_fuzzer.compute_cost()
     amount_fuzzer.fuzz()
 
 ### Example: More Numeric Ranges
@@ -368,7 +365,6 @@ if __name__ == '__main__':
 
 if __name__ == '__main__':
     expr_100_200_fuzzer = GeneratorGrammarFuzzer(expr_100_200_grammar)
-    expr_100_200_fuzzer.compute_cost()
     expr_100_200_fuzzer.fuzz()
 
 ### Support for Python Generators
@@ -421,7 +417,6 @@ class GeneratorGrammarFuzzer(GeneratorGrammarFuzzer):
 
 if __name__ == '__main__':
     iterate_fuzzer = GeneratorGrammarFuzzer(iterate_grammar)
-    iterate_fuzzer.compute_cost()
     iterate_fuzzer.fuzz()
 
 if __name__ == '__main__':
@@ -565,7 +560,6 @@ if __name__ == '__main__':
 
 if __name__ == '__main__':
     negative_expr_fuzzer = GeneratorGrammarFuzzer(negative_expr_grammar)
-    negative_expr_fuzzer.compute_cost()
     expr = negative_expr_fuzzer.fuzz()
     expr
 
@@ -597,7 +591,6 @@ if __name__ == '__main__':
 
 if __name__ == '__main__':
     xml_fuzzer = GrammarFuzzer(XML_GRAMMAR)
-    xml_fuzzer.compute_cost()
     xml_fuzzer.fuzz()
 
 XML_GRAMMAR.update({
@@ -611,7 +604,6 @@ if __name__ == '__main__':
 
 if __name__ == '__main__':
     xml_fuzzer = GeneratorGrammarFuzzer(XML_GRAMMAR)
-    xml_fuzzer.compute_cost()
     xml_fuzzer.fuzz()
 
 ### Example: Checksums
@@ -624,7 +616,6 @@ if __name__ == '__main__':
 if __name__ == '__main__':
     credit_card_fuzzer = GeneratorGrammarFuzzer(
         CHARGE_GRAMMAR, start_symbol="<credit-card-number>")
-    credit_card_fuzzer.compute_cost()
     credit_card_number = credit_card_fuzzer.fuzz()
     credit_card_number
 
@@ -633,7 +624,6 @@ if __name__ == '__main__':
 
 if __name__ == '__main__':
     charge_fuzzer = GeneratorGrammarFuzzer(CHARGE_GRAMMAR)
-    charge_fuzzer.compute_cost()
     charge_fuzzer.fuzz()
 
 ## Local Checking and Repairing
@@ -1089,50 +1079,6 @@ if __name__ == '__main__':
                                 'Grammar': Grammar
                             },
                             project='fuzzingbook')
-
-## Lessons Learned
-## ---------------
-
-if __name__ == '__main__':
-    print('\n## Lessons Learned')
-
-
-
-## Next Steps
-## ----------
-
-if __name__ == '__main__':
-    print('\n## Next Steps')
-
-
-
-## Background
-## ----------
-
-if __name__ == '__main__':
-    print('\n## Background')
-
-
-
-## Exercises
-## ---------
-
-if __name__ == '__main__':
-    print('\n## Exercises')
-
-
-
-### Exercise 1: Tree Processing
-
-if __name__ == '__main__':
-    print('\n### Exercise 1: Tree Processing')
-
-
-
-### Exercise 2: Attribute Grammars
-
-if __name__ == '__main__':
-    print('\n### Exercise 2: Attribute Grammars')
 
 
 

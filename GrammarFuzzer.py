@@ -627,6 +627,7 @@ class GrammarFuzzer(Fuzzer):
         return all_terminals(self.derivation_tree)
 
 from scssGrammar import SCSS_GRAMMAR
+#from GeneratorGrammarFuzzer import PGGCFuzzer
 # 试试不同的fuzzer
 if __name__ == '__main__':
 
@@ -640,63 +641,17 @@ if __name__ == '__main__':
     # with open("try.txt", "w") as f:
     #     f.write(scssText)
     print("generated scss code:\n", scssText)
-
-
-    # cssText = Compiler().compile_string(scssText)
-
+    
+    cssText = Compiler().compile_string(scssText)
+    print("generated css code:\n", cssText)
+    '''
     with Coverage() as cov:
-        cssText = Compiler().compile_string(scssText)
+        css = Compiler().compile_string(scss)
     #pdb.set_trace()
     trace = cov.trace()
     coverage = cov.coverage()
     print(coverage)
-    print("generated css code:\n", cssText)
     '''
-    f = GrammarFuzzer(EXPR_GRAMMAR)
-    f.check_grammar()
-    f.fuzz()
-    treeFig = display_tree(f.derivation_tree)
-    treeFig.render(directory="./output/", filename="expr_grammar_tree", view=True)
-    print(all_terminals(f.derivation_tree))
-    '''
-    '''
-    f = GrammarFuzzer(URL_GRAMMAR)
-    f.fuzz()
-    treeFig = display_tree(f.derivation_tree)
-    #treeFig.render(directory="./output/", filename="url_grammar_tree1", view=True)
-    print(all_terminals(f.derivation_tree))
-    f.fuzz()
-    treeFig = display_tree(f.derivation_tree)
-    #treeFig.render(directory="./output/", filename="url_grammar_tree2", view=True)
-    print(all_terminals(f.derivation_tree))
-
-    f = GrammarFuzzer(CGI_GRAMMAR, min_nonterminals=3, max_nonterminals=5)
-    f.fuzz()
-    treeFig = display_tree(f.derivation_tree)
-    #treeFig.render(directory="./output/", filename="cgi_grammar_tree", view=True)
-    print(all_terminals(f.derivation_tree))
-    '''
-'''
-if __name__ == '__main__':
-    # DerivationTree就像这样
-    derivation_tree: DerivationTree = \
-        ("<start>",\
-                  [("<expr>", [("<expr>", None), (" + ", []), ("<term>", None)])]\
-        )
-    # the tree above is like
-    #       <start>
-    #          |
-    #        <expr>
-    #      /   |   \
-    # <expr>  "+"   <expr>
-
-    # 画tree出来看看
-    treeFig = display_tree(derivation_tree)
-    #display(treeFig)
-    treeFig.render(directory="./output/", filename="tree", view=True)
-    print(derivation_tree)
-'''
-
 '''
 # 试试50次trial
 if __name__ == '__main__':
