@@ -145,47 +145,16 @@ For more details, source, and documentation, see
 at https://www.fuzzingbook.org/html/Coverage.html
 '''
 
-
-# Allow to use 'from  import <module>' when run as script (cf. PEP 366)
-if __name__ == '__main__' and __package__ is None:
-    __package__ = 'fuzzingbook'
-
-
 # Code Coverage
 # =============
 
-if __name__ == '__main__':
-    print('# Code Coverage')
-
-
-
-if __name__ == '__main__':
-    from bookutils import YouTubeVideo
-
-if __name__ == '__main__':
-    YouTubeVideo('2lfgI9KdARs')
-
 ## Synopsis
 ## --------
-
-if __name__ == '__main__':
-    print('\n## Synopsis')
-
-
-
-if __name__ == '__main__':
-    # We use the same fixed seed as the notebook to ensure consistency
-    import random
-    random.seed(2001)
 
 from typing import Any, Optional, Callable, List, Type, Set, Tuple
 
 ## A CGI Decoder
 ## -------------
-
-if __name__ == '__main__':
-    print('\n## A CGI Decoder')
-
 
 
 def cgi_decode(s: str) -> str:
@@ -226,9 +195,6 @@ if __name__ == '__main__':
 
 ## Black-Box Testing
 ## -----------------
-
-if __name__ == '__main__':
-    print('\n## Black-Box Testing')
 
 
 
@@ -409,44 +375,6 @@ class Coverage:
                 t += source_lines[lineno - start_line_number]
 
         return t
-
-if __name__ == '__main__':
-    with Coverage() as cov:
-        cgi_decode("a+b")
-
-    print(cov.coverage())
-
-if __name__ == '__main__':
-    print(cov)
-
-## Comparing Coverage
-## ------------------
-
-if __name__ == '__main__':
-    print('\n## Comparing Coverage')
-
-
-
-if __name__ == '__main__':
-    with Coverage() as cov_plus:
-        cgi_decode("a+b")
-    with Coverage() as cov_standard:
-        cgi_decode("abc")
-
-    cov_plus.coverage() - cov_standard.coverage()
-
-if __name__ == '__main__':
-    with Coverage() as cov_max:
-        cgi_decode('+')
-        cgi_decode('%20')
-        cgi_decode('abc')
-        try:
-            cgi_decode('%?a')
-        except Exception:
-            pass
-
-if __name__ == '__main__':
-    cov_max.coverage() - cov_plus.coverage()
 
 ##  Coverage of Basic Fuzzing
 ## --------------------------

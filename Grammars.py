@@ -945,11 +945,6 @@ if __name__ == '__main__':
 
 ### Excursion: Implementing `is_valid_grammar()`
 
-if __name__ == '__main__':
-    print('\n### Excursion: Implementing `is_valid_grammar()`')
-
-
-
 import sys
 
 def def_used_nonterminals(grammar: Grammar, start_symbol: 
