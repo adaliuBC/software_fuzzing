@@ -61,7 +61,7 @@ VARNAME_GRAMMAR = {
     "<DOLLAR>": ["$"],
     "<MINUS>":  ["-"]
 }
-VARNAME_GRAMMAR.update(Identifier_Grammar)
+#VARNAME_GRAMMAR.update(Identifier_Grammar)
 
 RULESET_GRAMMAR = {
     "<start>": 
@@ -154,9 +154,6 @@ RULESET_GRAMMAR = {
     "<lowercaseHexChar>":
         [chr(order) for order in range(ord('a'), ord('f')+1)],   
 
-# no ", no \
-    # TODO: check this string
-    
     "<DOT>": ["."],
     "<COMMA>":  [","],
     "<HASH>":  ["#"],
@@ -167,9 +164,15 @@ RULESET_GRAMMAR = {
     "<COLON>"     : [":"],
     "<IMPORTANT>" : ["!important"],
 
-
 }
 
-RULESET_GRAMMAR.update(Identifier_Grammar)
-RULESET_GRAMMAR.update(String_Grammar)
+# RULESET_GRAMMAR.update(Identifier_Grammar)
+# RULESET_GRAMMAR.update(String_Grammar)
+USE_GRAMMAR = RULESET_GRAMMAR
+USE_GRAMMAR.update(Identifier_Grammar)
+USE_GRAMMAR.update(String_Grammar)
 
+VARIABLE_DECLARE_GRAMMAR = {
+
+    
+}

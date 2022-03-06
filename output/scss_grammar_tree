@@ -1,0 +1,355 @@
+// Derivation Tree
+digraph {
+	node [shape=plain]
+	0 [label="\<ruleset\>"]
+	0 -> 1
+	1 [label="\<block\>"]
+	1 -> 2
+	2 [label="\<consecSelectors\>"]
+	2 -> 3
+	3 [label="\<selector\>"]
+	3 -> 4
+	4 [label="\<DOT\>"]
+	4 -> 5
+	5 [label="\."]
+	3 -> 6
+	6 [label="\<Identifier\>"]
+	6 -> 7
+	7 [label="\<idStart\>"]
+	7 -> 8
+	8 [label="\<uppercaseChar\>"]
+	8 -> 9
+	9 [label=U]
+	6 -> 10
+	10 [label="\<characters\>"]
+	10 -> 11
+	11 [label="\<character\>"]
+	11 -> 12
+	12 [label="\<uppercaseChar\>"]
+	12 -> 13
+	13 [label=Q]
+	10 -> 14
+	14 [label="\<characters\>"]
+	14 -> 15
+	15 [label="\<character\>"]
+	15 -> 16
+	16 [label="\<digit\>"]
+	16 -> 17
+	17 [label=6]
+	2 -> 18
+	18 [label=" "]
+	2 -> 19
+	19 [label="\<consecSelectors\>"]
+	19 -> 20
+	20 [label="\<consecSelector\>"]
+	20 -> 21
+	21 [label="\<COMMA\>"]
+	21 -> 22
+	22 [label="\,"]
+	20 -> 23
+	23 [label=" "]
+	20 -> 24
+	24 [label="\<selector\>"]
+	24 -> 25
+	25 [label="\<HASH\>"]
+	25 -> 26
+	26 [label="\#"]
+	24 -> 27
+	27 [label="\<Identifier\>"]
+	27 -> 28
+	28 [label="\<idStart\>"]
+	28 -> 29
+	29 [label="\<uppercaseChar\>"]
+	29 -> 30
+	30 [label=Z]
+	27 -> 31
+	31 [label="\<characters\>"]
+	31 -> 32
+	32 [label="\<character\>"]
+	32 -> 33
+	33 [label="\<lowercaseChar\>"]
+	33 -> 34
+	34 [label=p]
+	19 -> 35
+	35 [label="\<consecSelectors\>"]
+	35 -> 36
+	36 [label=""]
+	1 -> 37
+	37 [label=" "]
+	1 -> 38
+	38 [label="\<block\>"]
+	38 -> 39
+	39 [label="\<BlockStart\>"]
+	39 -> 40
+	40 [label="\{"]
+	38 -> 41
+	41 [label=" "]
+	38 -> 42
+	42 [label="\<ruleset\>"]
+	42 -> 43
+	43 [label="\<selectors\>"]
+	43 -> 44
+	44 [label="\<selector\>"]
+	44 -> 45
+	45 [label="\<HASH\>"]
+	45 -> 46
+	46 [label="\#"]
+	44 -> 47
+	47 [label="\<Identifier\>"]
+	47 -> 48
+	48 [label="\<idStart\>"]
+	48 -> 49
+	49 [label="\<lowercaseChar\>"]
+	49 -> 50
+	50 [label=s]
+	47 -> 51
+	51 [label="\<characters\>"]
+	51 -> 52
+	52 [label="\<character\>"]
+	52 -> 53
+	53 [label="\<uppercaseChar\>"]
+	53 -> 54
+	54 [label=I]
+	51 -> 55
+	55 [label="\<characters\>"]
+	55 -> 56
+	56 [label="\<character\>"]
+	56 -> 57
+	57 [label="\<lowercaseChar\>"]
+	57 -> 58
+	58 [label=a]
+	43 -> 59
+	59 [label=" "]
+	43 -> 60
+	60 [label="\<consecSelectors\>"]
+	60 -> 61
+	61 [label=""]
+	42 -> 62
+	62 [label=" "]
+	42 -> 63
+	63 [label="\<block\>"]
+	63 -> 64
+	64 [label="\<BlockStart\>"]
+	64 -> 65
+	65 [label="\{"]
+	63 -> 66
+	66 [label=" "]
+	63 -> 67
+	67 [label="\<ruleset\>"]
+	67 -> 68
+	68 [label="\<selectors\>"]
+	68 -> 69
+	69 [label="\<selector\>"]
+	69 -> 70
+	70 [label="\<DOT\>"]
+	70 -> 71
+	71 [label="\."]
+	69 -> 72
+	72 [label="\<Identifier\>"]
+	72 -> 73
+	73 [label="\<idStart\>"]
+	73 -> 74
+	74 [label="\<lowercaseChar\>"]
+	74 -> 75
+	75 [label=k]
+	72 -> 76
+	76 [label="\<characters\>"]
+	76 -> 77
+	77 [label="\<character\>"]
+	77 -> 78
+	78 [label="\<lowercaseChar\>"]
+	78 -> 79
+	79 [label=l]
+	76 -> 80
+	80 [label="\<characters\>"]
+	80 -> 81
+	81 [label="\<character\>"]
+	81 -> 82
+	82 [label="\<uppercaseChar\>"]
+	82 -> 83
+	83 [label=R]
+	80 -> 84
+	84 [label="\<characters\>"]
+	84 -> 85
+	85 [label="\<character\>"]
+	85 -> 86
+	86 [label="\<digit\>"]
+	86 -> 87
+	87 [label=2]
+	84 -> 88
+	88 [label="\<characters\>"]
+	88 -> 89
+	89 [label="\<character\>"]
+	89 -> 90
+	90 [label="\<uppercaseChar\>"]
+	90 -> 91
+	91 [label=X]
+	68 -> 92
+	92 [label=" "]
+	68 -> 93
+	93 [label="\<consecSelectors\>"]
+	93 -> 94
+	94 [label=""]
+	67 -> 95
+	95 [label=" "]
+	67 -> 96
+	96 [label="\<block\>"]
+	96 -> 97
+	97 [label="\<BlockStart\>"]
+	97 -> 98
+	98 [label="\{"]
+	96 -> 99
+	99 [label=" "]
+	96 -> 100
+	100 [label="\<properties\_\>"]
+	100 -> 101
+	101 [label=""]
+	96 -> 102
+	102 [label=" "]
+	96 -> 103
+	103 [label="\<lastProperty\>"]
+	103 -> 104
+	104 [label="\<Identifier\>"]
+	104 -> 105
+	105 [label="\<idStart\>"]
+	105 -> 106
+	106 [label="\<lowercaseChar\>"]
+	106 -> 107
+	107 [label=y]
+	104 -> 108
+	108 [label="\<characters\>"]
+	108 -> 109
+	109 [label="\<character\>"]
+	109 -> 110
+	110 [label="\<lowercaseChar\>"]
+	110 -> 111
+	111 [label=h]
+	103 -> 112
+	112 [label="\<COLON\>"]
+	112 -> 113
+	113 [label="\:"]
+	103 -> 114
+	114 [label=" "]
+	103 -> 115
+	115 [label="\<propertyValue\>"]
+	115 -> 116
+	116 [label="\<expression\>"]
+	116 -> 117
+	117 [label="\<NULL\_\>"]
+	117 -> 118
+	118 [label=null]
+	103 -> 119
+	119 [label=" "]
+	103 -> 120
+	120 [label="\<IMPORTANT\>"]
+	120 -> 121
+	121 [label="\!important"]
+	96 -> 122
+	122 [label=" "]
+	96 -> 123
+	123 [label="\<BlockEnd\>"]
+	123 -> 124
+	124 [label="\}"]
+	63 -> 125
+	125 [label=" "]
+	63 -> 126
+	126 [label="\<lastProperty\>"]
+	126 -> 127
+	127 [label="\<Identifier\>"]
+	127 -> 128
+	128 [label="\<idStart\>"]
+	128 -> 129
+	129 [label="\<lowercaseChar\>"]
+	129 -> 130
+	130 [label=q]
+	127 -> 131
+	131 [label="\<characters\>"]
+	131 -> 132
+	132 [label="\<character\>"]
+	132 -> 133
+	133 [label="\<lowercaseChar\>"]
+	133 -> 134
+	134 [label=k]
+	126 -> 135
+	135 [label="\<COLON\>"]
+	135 -> 136
+	136 [label="\:"]
+	126 -> 137
+	137 [label=" "]
+	126 -> 138
+	138 [label="\<propertyValue\>"]
+	138 -> 139
+	139 [label="\<expression\>"]
+	139 -> 140
+	140 [label="\<Color\>"]
+	140 -> 141
+	141 [label="\#"]
+	140 -> 142
+	142 [label="\<digit\>"]
+	142 -> 143
+	143 [label=6]
+	140 -> 144
+	144 [label="\<hexChar\>"]
+	144 -> 145
+	145 [label="\<lowercaseHexChar\>"]
+	145 -> 146
+	146 [label=f]
+	140 -> 147
+	147 [label="\<hexChar\>"]
+	147 -> 148
+	148 [label="\<uppercaseHexChar\>"]
+	148 -> 149
+	149 [label=A]
+	126 -> 150
+	150 [label=" "]
+	126 -> 151
+	151 [label="\<IMPORTANT\>"]
+	151 -> 152
+	152 [label="\!important"]
+	63 -> 153
+	153 [label=" "]
+	63 -> 154
+	154 [label="\<BlockEnd\>"]
+	154 -> 155
+	155 [label="\}"]
+	38 -> 156
+	156 [label=" "]
+	38 -> 157
+	157 [label="\<lastProperty\>"]
+	157 -> 158
+	158 [label="\<Identifier\>"]
+	158 -> 159
+	159 [label="\<idStart\>"]
+	159 -> 160
+	160 [label="\<lowercaseChar\>"]
+	160 -> 161
+	161 [label=t]
+	158 -> 162
+	162 [label="\<characters\>"]
+	162 -> 163
+	163 [label="\<character\>"]
+	163 -> 164
+	164 [label="\<digit\>"]
+	164 -> 165
+	165 [label=9]
+	157 -> 166
+	166 [label="\<COLON\>"]
+	166 -> 167
+	167 [label="\:"]
+	157 -> 168
+	168 [label=" "]
+	157 -> 169
+	169 [label="\<propertyValue\>"]
+	169 -> 170
+	170 [label="\<expression\>"]
+	170 -> 171
+	171 [label="\<NULL\_\>"]
+	171 -> 172
+	172 [label=null]
+	38 -> 173
+	173 [label=" "]
+	38 -> 174
+	174 [label="\<BlockEnd\>"]
+	174 -> 175
+	175 [label="\}"]
+}

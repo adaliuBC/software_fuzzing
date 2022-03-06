@@ -928,18 +928,11 @@ def set_opts(grammar: Grammar, symbol: str, expansion: Expansion,
         repr(
             exp_string(expansion)))
 
-#### End of Excursion
-
-if __name__ == '__main__':
-    print('\n#### End of Excursion')
 
 
 
 ## Checking Grammars
 ## -----------------
-
-if __name__ == '__main__':
-    print('\n## Checking Grammars')
 
 
 

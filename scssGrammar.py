@@ -36,8 +36,8 @@ SCSS_GRAMMAR = {  # : Grammar = {?
 
     "<variableName>":
         ["<DOLLAR><Identifier>",
-         #"<MINUS_DOLLAR><Identifier>",
-         #"<PLUS_DOLLAR><Identifier>",
+         "<MINUS_DOLLAR><Identifier>",
+         "<PLUS_DOLLAR><Identifier>",
          "<namespaces><DOLLAR><Identifier>"],
          #"<namespaces><MINUS_DOLLAR><Identifier>",
          #"<namespaces><PLUS_DOLLAR><Identifier>"],
