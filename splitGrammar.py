@@ -1,21 +1,7 @@
-VARNAME_GRAMMAR = {
-    "<start>": 
-        ["<variableName>"],
 
-    "<variableName>":
-        ["<DOLLAR><Identifier>",
-         #"<MINUS_DOLLAR><Identifier>",
-         #"<PLUS_DOLLAR><Identifier>",
-         "<namespaces><MINUS><Identifier>"],
-         #"<namespaces><MINUS_DOLLAR><Identifier>",
-         #"<namespaces><PLUS_DOLLAR><Identifier>"],
 
-    "<namespaces>":
-        ["<namespace>", "<namespace><namespaces>"],
-    
-    "<namespace>":
-        ["<Identifier>"],
-
+Identifier_Grammar = {
+    # Identifier
     "<Identifier>": 
         ["<idStart><characters>"], ##???, "-<idStart><characters>"],
 
@@ -39,11 +25,43 @@ VARNAME_GRAMMAR = {
     
     "<digit>":
         [str(i) for i in range(0, 10)],
+}
 
+String_Grammar = {
+    # string
+    "<STRING>":
+        ["\"<string>\""],
+    
+    "<string>":
+        ["<char>", "<char><string>"],
+    
+    "<char>":
+        [chr(32), chr(33)] + [chr(order) for order in range(35, 92)] + [chr(order) for order in range(93, 127)],
+
+}
+
+VARNAME_GRAMMAR = {
+    "<start>": 
+        ["<variableName>"],
+
+    "<variableName>":
+        ["<DOLLAR><Identifier>",
+         #"<MINUS_DOLLAR><Identifier>",
+         #"<PLUS_DOLLAR><Identifier>",
+         "<namespaces><MINUS><Identifier>"],
+         #"<namespaces><MINUS_DOLLAR><Identifier>",
+         #"<namespaces><PLUS_DOLLAR><Identifier>"],
+
+    "<namespaces>":
+        ["<namespace>", "<namespace><namespaces>"],
+    
+    "<namespace>":
+        ["<Identifier>"],
     
     "<DOLLAR>": ["$"],
     "<MINUS>":  ["-"]
 }
+VARNAME_GRAMMAR.update(Identifier_Grammar)
 
 RULESET_GRAMMAR = {
     "<start>": 
@@ -97,7 +115,7 @@ RULESET_GRAMMAR = {
 
     # unit
     "<Unit>":
-        ["%", "px", "cm", "mm", "in", "pt",
+        ["px", "cm", "mm", "in", "pt",
          "pc", "em", "ex", "deg", "rad", "grad",
          "ms", "s", "hz", "khz"],
     
@@ -135,42 +153,8 @@ RULESET_GRAMMAR = {
 
     "<lowercaseHexChar>":
         [chr(order) for order in range(ord('a'), ord('f')+1)],   
-    
-    # Identifier
-    "<Identifier>": 
-        ["<idStart><characters>"], ##???, "-<idStart><characters>"],
 
-    "<idStart>":
-        ["<uppercaseChar>", "<lowercaseChar>"], #, "_"], ##??? , "-"],
-    
-    "<characters>":
-        ["<character>", "<character><characters>"],
-    
-    "<character>":
-        ["<uppercaseChar>", "<lowercaseChar>", "<digit>"], #, "_"],  ##??? , "-"],
-
-    "<uppercaseChar>":
-        [chr(order) for order in range(ord('A'), ord('Z')+1)],
-
-    "<lowercaseChar>":
-        [chr(order) for order in range(ord('a'), ord('z')+1)],   
-
-    #"<unicodeChar>":
-    #    [chr(order) for order in range(ord('\u0100'), ord('\uffff'))],
-    
-    "<digit>":
-        [str(i) for i in range(0, 10)],
-
-    # string
-    "<STRING>":
-        ["\"<string>\""],
-    
-    "<string>":
-        ["<char>", "<char><string>"],
-    
-    "<char>":
-        [chr(32), chr(33)] + [chr(order) for order in range(35, 92)] + [chr(order) for order in range(93, 127)],
-    # no ", no \
+# no ", no \
     # TODO: check this string
     
     "<DOT>": ["."],
@@ -185,3 +169,7 @@ RULESET_GRAMMAR = {
 
 
 }
+
+RULESET_GRAMMAR.update(Identifier_Grammar)
+RULESET_GRAMMAR.update(String_Grammar)
+

@@ -83,31 +83,6 @@ if __name__ == '__main__' and __package__ is None:
 # Mutation-Based Fuzzing
 # ======================
 
-if __name__ == '__main__':
-    print('# Mutation-Based Fuzzing')
-
-
-
-if __name__ == '__main__':
-    from bookutils import YouTubeVideo
-    YouTubeVideo('9pQVjw-tE6w')
-
-## Synopsis
-## --------
-
-if __name__ == '__main__':
-    print('\n## Synopsis')
-
-
-
-## Fuzzing with Mutations
-## ----------------------
-
-if __name__ == '__main__':
-    print('\n## Fuzzing with Mutations')
-
-
-
 ## Fuzzing a URL Parser
 ## --------------------
 

@@ -11,14 +11,12 @@ SCSS_GRAMMAR = {  # : Grammar = {?
         ["", "<statement><statements>"],
     
     "<statement>":
-        [#"<importDeclaration>",   
-         "<mediaDeclaration>",
-         "<ruleset>",             "<mixinDeclaration>", 
-         #"<contentDeclaration>",  "<functionDeclaration>",
-         "<functionDeclaration>",
-         "<variableDeclaration>", #"<includeDeclaration>",
-         "<ifDeclaration>",       "<forDeclaration>",
-         "<whileDeclaration>",    "<eachDeclaration>"],
+        [#"<importDeclaration>", "<contentDeclaration>", "<includeDeclaration>",
+         "<mediaDeclaration>", "<ruleset>", 
+         "<functionDeclaration>", "<mixinDeclaration>", 
+         "<variableDeclaration>", "<ifDeclaration>",       
+         "<forDeclaration>", "<whileDeclaration>", 
+         "<eachDeclaration>"],
 
     # Params declared by rules such as @mixin and @function.
     "<declaredParams>":
@@ -38,11 +36,11 @@ SCSS_GRAMMAR = {  # : Grammar = {?
 
     "<variableName>":
         ["<DOLLAR><Identifier>",
-         "<MINUS_DOLLAR><Identifier>",
-         "<PLUS_DOLLAR><Identifier>",
-         "<namespaces><DOLLAR><Identifier>",
-         "<namespaces><MINUS_DOLLAR><Identifier>",
-         "<namespaces><PLUS_DOLLAR><Identifier>"],
+         #"<MINUS_DOLLAR><Identifier>",
+         #"<PLUS_DOLLAR><Identifier>",
+         "<namespaces><DOLLAR><Identifier>"],
+         #"<namespaces><MINUS_DOLLAR><Identifier>",
+         #"<namespaces><PLUS_DOLLAR><Identifier>"],
 
     "<paramOptionalValue>":
         ["<COLON> <expressions>"],
@@ -691,45 +689,3 @@ SCSS_GRAMMAR = {  # : Grammar = {?
 
 
 }
-
-'''
-    #"<BlockStart_ID>"          : ["<BlockStart>"], #-> popMode, type(BlockStart);
-    #"<SPACE>"                  : ["<WS>"], #-> popMode, skip;
-    #"<DOLLAR_ID>"              : ["<DOLLAR>"], # -> type(DOLLAR);
-
-    "<InterpolationStartAfter>"  : ["<InterpolationStart>"],
-    #"<InterpolationEnd_ID>"    : ["<BlockEnd>"],  # -> type(BlockEnd);
-    "<IdentifierAfter>"        : ["<Identifier>"],
-
-    # All tokens that can signal the end of identifiers
-    #"<Ellipsis_ID>"               : ["<Ellipsis>"],   #-> popMode, type(Ellipsis);
-    #"<DOT_ID>"                    : ["<DOT>"],        #-> popMode, type(DOT);
-    #"<LBRACK_ID>"                 : ["<LBRACK>"],     #-> popMode, type(LBRACK);
-    #"<RBRACK_ID>"                 : ["<RBRACK>"],     #-> popMode, type(RBRACK);
-    #"<LPAREN_ID>"                 : ["<LPAREN>"],     #-> popMode, type(LPAREN);
-    #"<RPAREN_ID>"                 : ["<RPAREN>"],     #-> popMode, type(RPAREN);
-    #"<COLON_ID>"                  : ["<COLON>"],      #-> popMode, type(COLON);
-    #"<COMMA_ID>"                  : ["<COMMA>"],      #-> popMode, type(COMMA);
-    #"<SEMI_ID>"                   : ["<SEMI>"],       #-> popMode, type(SEMI);
-    #"<EQ_ID>"                     : ["<EQ>"],         #-> popMode, type(EQ);
-    #"<PIPE_EQ_ID>"                : ["<PIPE_EQ>"],    #-> popMode, type(PIPE_EQ);
-    #"<TILD_EQ_ID>"                : ["<TILD_EQ>"],    #-> popMode, type(TILD_EQ);
-    #"<PseudoIdentifier_ID>"       : ["<PseudoIdentifier>"],   #-> popMode, type(PseudoIdentifier);
-'''
-'''
-fragment STRING
-    : '"' (~('"'|'\n'|'\r'))* '"'
-    | '\'' (~('\''|'\n'|'\r'))* '\''
-    ;
-'''
-
-'''
-mode URL_STARTED;
-UrlEnd                 : RPAREN -> popMode;
-Url                    :  STRING | (~(')' | '\n' | '\r' | ';'))+;
-
-mode IDENTIFY;
-BlockStart_ID          : BlockStart -> popMode, type(BlockStart);
-SPACE                  : WS -> popMode, skip;
-DOLLAR_ID              : DOLLAR -> type(DOLLAR);
-'''

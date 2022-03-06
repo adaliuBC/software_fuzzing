@@ -1,0 +1,106 @@
+//规则嵌套
+#main p {
+  color: #00ff00;
+  width: 97%;
+
+  .redbox {
+    background-color: #ff0000;
+    color: #000000;
+  }
+}
+
+#main {
+  width: 97%;
+
+  p, div {
+    font-size: 2em;
+    a { font-weight: bold; }
+  }
+
+  pre { font-size: 3em; }
+}
+
+//用&表示父选择器
+a {
+  font-weight: bold;
+  text-decoration: none;
+  &:hover { text-decoration: underline; }
+  body.firefox & { font-weight: normal; }
+}
+
+//属性嵌套
+.funky {
+  font: {
+    family: fantasy;
+    size: 30em;
+    weight: bold;
+  }
+}
+
+//注释
+/* This comment is
+ * several lines long.
+ * since it uses the CSS comment syntax,
+ * it will appear in the CSS output. */
+
+//变量
+$width: 5em;  //global
+#main {
+  width: $width;
+}
+
+#main {
+  $width: 5em !global;  //转化为global
+  width: $width;
+}
+
+#sidebar {
+  width: $width;
+}
+
+//数据类型
+
+// 运算：单位
+p {
+  width: 1in + 8pt;
+}
+
+p {
+  font: 10px/8px;             // Plain CSS, no division
+  $width: 1000px;
+  width: $width/2;            // Uses a variable, does division
+  width: round(1.5)/2;        // Uses a function, does division
+  height: (500px/2);          // Uses parentheses, does division
+  margin-left: 5px + 8px/2px; // Uses +, does division
+}
+
+p {
+  $font-size: 12px;
+  $line-height: 30px;
+  font: #{$font-size}/#{$line-height};
+}
+
+//运算：颜色
+p {
+  color: #010203 + #040506;
+}
+
+p {
+  color: #010203 * 2;
+}
+
+$translucent-red: rgba(255, 0, 0, 0.5);
+p {
+  color: opacify($translucent-red, 0.3);
+  background-color: transparentize($translucent-red, 0.25);
+}
+
+//运算：字符串
+p {
+  cursor: e + -resize;
+}
+
+p:before {
+  content: "I ate #{5 + 10} pies!";
+}
+

@@ -461,12 +461,6 @@ class GeneratorGrammarFuzzer(GeneratorGrammarFuzzer):
             except RestartExpansionException:
                 self.restart_expansion()
 
-if __name__ == '__main__':
-    binary_expr_fuzzer = GeneratorGrammarFuzzer(
-        binary_expr_grammar, replacement_attempts=100)
-    #binary_expr_fuzzer.compute_cost()
-    #binary_expr_fuzzer.fuzz()
-
 ## Definitions and Uses
 ## --------------------
 
@@ -488,15 +482,6 @@ VAR_GRAMMAR: Grammar = {
     '<integer>': ['<digit><integer>', '<digit>'],
     '<digit>': crange('0', '9')
 }
-
-if __name__ == '__main__':
-    assert is_valid_grammar(VAR_GRAMMAR)
-
-# if __name__ == '__main__':
-#     g = GrammarFuzzer(VAR_GRAMMAR)
-#     g.compute_cost()
-#     for i in range(10):
-#         print(g.fuzz())
 
 SYMBOL_TABLE: Set[str] = set()
 
@@ -566,40 +551,67 @@ def exp_order(expansion):
 '''
 from GrammarFuzzer import display_tree
 from scssGrammar import SCSS_GRAMMAR
+from splitGrammar import RULESET_GRAMMAR
 from scss import Compiler
+from Coverage import Coverage
+from fileList import fileList
+import matplotlib.pyplot as plt
 #from GeneratorGrammarFuzzer import PGGCFuzzer
 # 试试不同的fuzzer
-if __name__ == '__main__':
 
-    f = GeneratorGrammarFuzzer(SCSS_GRAMMAR, min_nonterminals=3, max_nonterminals=50, log=True)
+if __name__ == '__main__':
+    # cnt the total line num that is provided by Pyscss
+    cntLines = 0
+    for file in fileList:
+        cntLine = len(open(file,'rb').readlines())
+        print(file, ":", cntLine)
+        cntLines += cntLine
+    print("cntLines:", cntLines)
+
+    f = GeneratorGrammarFuzzer(RULESET_GRAMMAR, min_nonterminals=3, max_nonterminals=50, log = False)
     f.check_grammar()
     f.compute_cost()
-    f.fuzz()
-    treeFig = display_tree(f.derivation_tree)
-    treeFig.render(directory="./output/", filename="scss_grammar_tree", view=True)
-    scssText = all_terminals(f.derivation_tree)
-    # with open("try.txt", "w") as f:
-    #     f.write(scssText)
-    print("generated scss code:\n", scssText)
+    trial = 50
+    coveragePercentageAll = 0.
+    coveredLines = set()
+    xList = []
+    yList = []
+    for i in range(trial):
+        f.fuzz()
+        #treeFig = display_tree(f.derivation_tree)
+        #treeFig.render(directory="./output/", filename="scss_grammar_tree", view=True)
+        scssText = all_terminals(f.derivation_tree)
+        # with open("try.txt", "w") as f:
+        #     f.write(scssText)
+        print("\ngenerated scss code:\n", scssText)
+        
+        #cssText = Compiler().compile_string(scssText)
+        
+        with Coverage() as cov:
+            cssText = Compiler().compile_string(scssText)
+        #pdb.set_trace()
+        #print("Coverage:\n", cov.coverage())
+        print("Covered percentage single:\n", len(cov.coverage())/cntLines)
+        print("generated css code:\n", cssText)
+        coveredLines = coveredLines | cov.coverage()
+        xList.append(i)
+        yList.append(len(coveredLines)/cntLines)
+    plt.plot(xList, yList)
+    plt.show()
+
+    print(coveredLines)
     
-    cssText = Compiler().compile_string(scssText)
-    print("generated css code:\n", cssText)
-    '''
-    with Coverage() as cov:
-        css = Compiler().compile_string(scss)
-    #pdb.set_trace()
-    trace = cov.trace()
-    coverage = cov.coverage()
-    print(coverage)
-    '''
+    #plt.plot(fileList, file2coveredLineNumOrdered)
+    #plt.show()
+        
 ### Generators and Probabilistic Fuzzing
 
 from ProbabilisticGrammarFuzzer import ProbabilisticGrammarFuzzer  # minor dependency
 
 from bookutils import inheritance_conflicts
 
-if __name__ == '__main__':
-    inheritance_conflicts(ProbabilisticGrammarFuzzer, GeneratorGrammarFuzzer)
+# if __name__ == '__main__':
+#     inheritance_conflicts(ProbabilisticGrammarFuzzer, GeneratorGrammarFuzzer)
 
 class ProbabilisticGeneratorGrammarFuzzer(GeneratorGrammarFuzzer,
                                           ProbabilisticGrammarFuzzer):
@@ -621,10 +633,10 @@ class ProbabilisticGeneratorGrammarFuzzer(GeneratorGrammarFuzzer,
                 replacement_attempts=replacement_attempts)
         super(ProbabilisticGrammarFuzzer, self).__init__(grammar, **kwargs)
 
-CONSTRAINED_VAR_GRAMMAR.update({
-    '<word>': [('<alpha><word>', opts(prob=0.9)),
-               '<alpha>'],
-})
+# CONSTRAINED_VAR_GRAMMAR.update({
+#     '<word>': [('<alpha><word>', opts(prob=0.9)),
+#                '<alpha>'],
+# })
 
 # if __name__ == '__main__':
 #     pgg_fuzzer = ProbabilisticGeneratorGrammarFuzzer(CONSTRAINED_VAR_GRAMMAR)
@@ -635,12 +647,11 @@ CONSTRAINED_VAR_GRAMMAR.update({
 # Generators and Grammar Coverage
 # ===============================
 from ProbabilisticGrammarFuzzer import ProbabilisticGrammarCoverageFuzzer  # minor dependency
-
 from GrammarCoverageFuzzer import GrammarCoverageFuzzer  # minor dependency
 
-if __name__ == '__main__':
-    inheritance_conflicts(ProbabilisticGrammarCoverageFuzzer,
-                          GeneratorGrammarFuzzer)
+# if __name__ == '__main__':
+#     inheritance_conflicts(ProbabilisticGrammarCoverageFuzzer,
+#                           GeneratorGrammarFuzzer)
 
 import copy
 
@@ -709,30 +720,30 @@ class PGGCFuzzer(ProbabilisticGeneratorGrammarCoverageFuzzer):
     """The one grammar-based fuzzer that supports all fuzzingbook features"""
     pass
 
-from scssGrammar import SCSS_GRAMMAR
-if __name__ == '__main__':
-    print("--------SEE HERE")
-    f = PGGCFuzzer(SCSS_GRAMMAR, min_nonterminals=3, max_nonterminals=50, log=True)
-    f.check_grammar()
-    f.compute_cost()
-    f.fuzz()
-    treeFig = display_tree(f.derivation_tree)
-    treeFig.render(directory="./output/", filename="scss_grammar_tree", view=True)
-    scssText = all_terminals(f.derivation_tree)
-    # with open("try.txt", "w") as f:
-    #     f.write(scssText)
-    print("generated scss code:\n", scssText)
+# from scssGrammar import SCSS_GRAMMAR
+# if __name__ == '__main__':
+#     print("--------SEE HERE")
+#     f = PGGCFuzzer(SCSS_GRAMMAR, min_nonterminals=3, max_nonterminals=50, log=True)
+#     f.check_grammar()
+#     f.compute_cost()
+#     f.fuzz()
+#     treeFig = display_tree(f.derivation_tree)
+#     treeFig.render(directory="./output/", filename="scss_grammar_tree", view=True)
+#     scssText = all_terminals(f.derivation_tree)
+#     # with open("try.txt", "w") as f:
+#     #     f.write(scssText)
+#     print("generated scss code:\n", scssText)
     
-    cssText = Compiler().compile_string(scssText)
-    print("generated css code:\n", cssText)
-    '''
-    with Coverage() as cov:
-        css = Compiler().compile_string(scss)
-    #pdb.set_trace()
-    trace = cov.trace()
-    coverage = cov.coverage()
-    print(coverage)
-    '''
+#     cssText = Compiler().compile_string(scssText)
+#     print("generated css code:\n", cssText)
+#     '''
+#     with Coverage() as cov:
+#         css = Compiler().compile_string(scss)
+#     #pdb.set_trace()
+#     trace = cov.trace()
+#     coverage = cov.coverage()
+#     print(coverage)
+#     '''
 
 ## Synopsis
 ## --------
@@ -753,32 +764,32 @@ PICKED_US_PHONE_GRAMMAR = extend_grammar(US_PHONE_GRAMMAR,
 
 from ClassDiagram import display_class_hierarchy
 
-if __name__ == '__main__':
-    display_class_hierarchy([PGGCFuzzer],
-                            public_methods=[
-                                Fuzzer.run,
-                                Fuzzer.runs,
-                                GrammarFuzzer.__init__,
-                                GrammarFuzzer.fuzz,
-                                GrammarFuzzer.fuzz_tree,
-                                GeneratorGrammarFuzzer.__init__,
-                                GeneratorGrammarFuzzer.fuzz_tree,
-                                GrammarCoverageFuzzer.__init__,
-                                ProbabilisticGrammarFuzzer.__init__,
-                                ProbabilisticGrammarCoverageFuzzer.__init__,
-                                ProbabilisticGeneratorGrammarCoverageFuzzer.__init__,
-                                ProbabilisticGeneratorGrammarCoverageFuzzer.fuzz_tree,
-                                PGGCFuzzer.__init__,
-                            ],
-                            types={
-                                'DerivationTree': DerivationTree,
-                                'Expansion': Expansion,
-                                'Grammar': Grammar
-                            },
-                            project='fuzzingbook')
+# if __name__ == '__main__':
+#     display_class_hierarchy([PGGCFuzzer],
+#                             public_methods=[
+#                                 Fuzzer.run,
+#                                 Fuzzer.runs,
+#                                 GrammarFuzzer.__init__,
+#                                 GrammarFuzzer.fuzz,
+#                                 GrammarFuzzer.fuzz_tree,
+#                                 GeneratorGrammarFuzzer.__init__,
+#                                 GeneratorGrammarFuzzer.fuzz_tree,
+#                                 GrammarCoverageFuzzer.__init__,
+#                                 ProbabilisticGrammarFuzzer.__init__,
+#                                 ProbabilisticGrammarCoverageFuzzer.__init__,
+#                                 ProbabilisticGeneratorGrammarCoverageFuzzer.__init__,
+#                                 ProbabilisticGeneratorGrammarCoverageFuzzer.fuzz_tree,
+#                                 PGGCFuzzer.__init__,
+#                             ],
+#                             types={
+#                                 'DerivationTree': DerivationTree,
+#                                 'Expansion': Expansion,
+#                                 'Grammar': Grammar
+#                             },
+#                             project='fuzzingbook')
 
-ATTR_GRAMMAR = {
-    "<clause>": [("<xml-open>Text<xml-close>", opts(post=lambda x1, x2: [None, x1.name]))],
-    "<xml-open>": [("<<tag>>", opts(post=lambda tag: opts(name=...)))],
-    "<xml-close>": ["</<tag>>"]
-}
+# ATTR_GRAMMAR = {
+#     "<clause>": [("<xml-open>Text<xml-close>", opts(post=lambda x1, x2: [None, x1.name]))],
+#     "<xml-open>": [("<<tag>>", opts(post=lambda tag: opts(name=...)))],
+#     "<xml-close>": ["</<tag>>"]
+# }
