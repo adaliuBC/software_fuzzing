@@ -5,13 +5,13 @@ SCSS_GRAMMAR = {  # : Grammar = {?
         ["<scss>"],
 
     "<scss>":
-        ["<statements>"],
+        ["<statement>"],
     
-    "<statements>":
-        ["", "<statement><statements>"],
+    # "<statements>":
+    #     ["", "<statement><statements>"],
     
     "<statement>":
-        [#"<importDeclaration>", "<contentDeclaration>", "<includeDeclaration>",
+        ["<importDeclaration>", "<contentDeclaration>", "<includeDeclaration>",
          "<mediaDeclaration>", "<ruleset>", 
          "<functionDeclaration>", "<mixinDeclaration>", 
          "<variableDeclaration>", "<ifDeclaration>",       
@@ -38,9 +38,9 @@ SCSS_GRAMMAR = {  # : Grammar = {?
         ["<DOLLAR><Identifier>",
          "<MINUS_DOLLAR><Identifier>",
          "<PLUS_DOLLAR><Identifier>",
-         "<namespaces><DOLLAR><Identifier>"],
-         #"<namespaces><MINUS_DOLLAR><Identifier>",
-         #"<namespaces><PLUS_DOLLAR><Identifier>"],
+         "<namespaces><DOLLAR><Identifier>",
+         "<namespaces><MINUS_DOLLAR><Identifier>",
+         "<namespaces><PLUS_DOLLAR><Identifier>"],
 
     "<paramOptionalValue>":
         ["<COLON> <expressions>"],
@@ -87,18 +87,18 @@ SCSS_GRAMMAR = {  # : Grammar = {?
          "<CONTENT> <LPAREN> <RPAREN> <SEMI>",
          "<CONTENT> <LPAREN> <passedParams> <RPAREN> <SEMI>"],
     
-    # "<includeDeclaration>":
-    #     ["<INCLUDE> <Identifier>",
-    #         "<INCLUDE> <Identifier> <SEMI>",
-    #         "<INCLUDE> <Identifier>",
-    #         "<INCLUDE> <Identifier> <block>",
-    #         "<INCLUDE> <Identifier> <USING> <LPAREN> <declaredParams> <RPAREN> <block>",
-    #         "<INCLUDE> <functionCall>",
-    #         "<INCLUDE> <functionCall> <SEMI>",
-    #         "<INCLUDE> <functionCall>",
-    #         "<INCLUDE> <functionCall> <block>",
-    #         "<INCLUDE> <functionCall> <USING> <LPAREN> <declaredParams> <RPAREN> <block>"],
-    # 
+    "<includeDeclaration>":
+        ["<INCLUDE> <Identifier>",
+            "<INCLUDE> <Identifier> <SEMI>",
+            "<INCLUDE> <Identifier>",
+            "<INCLUDE> <Identifier> <block>",
+            "<INCLUDE> <Identifier> <USING> <LPAREN> <declaredParams> <RPAREN> <block>",
+            "<INCLUDE> <functionCall>",
+            "<INCLUDE> <functionCall> <SEMI>",
+            "<INCLUDE> <functionCall>",
+            "<INCLUDE> <functionCall> <block>",
+            "<INCLUDE> <functionCall> <USING> <LPAREN> <declaredParams> <RPAREN> <block>"],
+    
 
     # FUNCTIONS
     "<functionDeclaration>":
@@ -139,7 +139,7 @@ SCSS_GRAMMAR = {  # : Grammar = {?
     
     "<expression>":
         ["<measurement>", "<identifier>", "<Color>",
-         "<StringLiteral>", "<NULL_>", "<url>", 
+         "<STRING>", "<NULL_>", "<url>", 
          "<variableName>", "<functionCall>"],
 
     "<mathStatement>":
@@ -229,31 +229,31 @@ SCSS_GRAMMAR = {  # : Grammar = {?
         
 
     # Imports
-    # "<importDeclaration>":
-    #     ["<IMPORT> <referenceUrl> <SEMI>",
-    #      "<USE> <referenceUrl> <SEMI>",
-    #      "<USE> <referenceUrl> <asClause> <SEMI>",
-    #      "<USE> <referenceUrl> <withClause> <SEMI>",
-    #      "<USE> <referenceUrl> <asClause> <withClause> <SEMI>"],
+    "<importDeclaration>":
+        ["<IMPORT> <referenceUrl> <SEMI>",
+         "<USE> <referenceUrl> <SEMI>",
+         "<USE> <referenceUrl> <asClause> <SEMI>",
+         "<USE> <referenceUrl> <withClause> <SEMI>",
+         "<USE> <referenceUrl> <asClause> <withClause> <SEMI>"],
 
-    # "<referenceUrl>":
-    #     ["<StringLiteral>", "<UrlStart> <Url> <UrlEnd>"],
+    "<referenceUrl>":
+        ["<STRING>", "<UrlStart> <Url> <UrlEnd>"],
 
-    # "<asClause>":
-    #     ["<AS> <TIMES>", "<AS> <identifier>"],
+    "<asClause>":
+        ["<AS> <TIMES>", "<AS> <identifier>"],
 
-    # "<withClause>":
-    #     ["<WITH> <LPAREN> <keywordArgument> <consecKeywordArguments> <RPAREN>",
-    #      "<WITH> <LPAREN> <keywordArgument> <consecKeywordArguments> <COMMA> <RPAREN>"],
+    "<withClause>":
+        ["<WITH> <LPAREN> <keywordArgument> <consecKeywordArguments> <RPAREN>",
+         "<WITH> <LPAREN> <keywordArgument> <consecKeywordArguments> <COMMA> <RPAREN>"],
         
-    # "<consecKeywordArguments>":
-    #     ["", "<consecKeywordArgument><consecKeywordArguments>"],
+    "<consecKeywordArguments>":
+        ["", "<consecKeywordArgument><consecKeywordArguments>"],
 
-    # "<consecKeywordArgument>":
-    #     ["<COMMA> <keywordArgument>"],
+    "<consecKeywordArgument>":
+        ["<COMMA> <keywordArgument>"],
         
-    # "<keywordArgument>":
-    #     ["<identifierVariableName> : <expression>"],
+    "<keywordArgument>":
+        ["<identifierVariableName> : <expression>"],
     
 
     # MEDIA
@@ -303,8 +303,8 @@ SCSS_GRAMMAR = {  # : Grammar = {?
     "<block>":
         ["<BlockStart> <properties_> <BlockEnd>",
          "<BlockStart> <properties_> <lastProperty> <BlockEnd>",
-         "<BlockStart> <statements> <BlockEnd>",
-         "<BlockStart> <statements> <lastProperty> <BlockEnd>"],
+         "<BlockStart> <statement> <BlockEnd>",
+         "<BlockStart> <statement> <lastProperty> <BlockEnd>"],   ## TODO: 注意这里的两个statements本来是statement！
     
     "<properties_>":
         ["", "<property_><properties_>"],
@@ -338,7 +338,7 @@ SCSS_GRAMMAR = {  # : Grammar = {?
 
     "<attrib>":
         ["<LBRACK> <Identifier> <RBRACK>", 
-         "<LBRACK> <Identifier> <attribRelate> <StringLiteral> <RBRACK>",
+         "<LBRACK> <Identifier> <attribRelate> <STRING> <RBRACK>",
          "<LBRACK> <Identifier> <attribRelate> <Identifier> <RBRACK>"],
 
     "<attribRelate>":
@@ -346,10 +346,10 @@ SCSS_GRAMMAR = {  # : Grammar = {?
 
     "<identifier>":
         ["<Identifier><identifierParts>",
-         "<InterpolationStart> <identifierVariableName> <BlockEnd> <identifierParts>"],
-         # These are keywords in some contexts, but can be used as identifiers too.
-         #"<AND_WORD>", "<FROM>", "<NOT>", "<ONLY>", 
-         #"<THROUGH>", "<TO>", "<USING>"],
+         "<InterpolationStart> <identifierVariableName> <BlockEnd> <identifierParts>",
+         #These are keywords in some contexts, but can be used as identifiers too.
+         "<AND_WORD>", "<FROM>", "<NOT>", "<ONLY>", 
+         "<THROUGH>", "<TO>", "<USING>"],
         # TODO: see later!
     "<pseudoIdentifier>":
         ["<PseudoIdentifier> <identifierParts>"],
@@ -367,10 +367,10 @@ SCSS_GRAMMAR = {  # : Grammar = {?
 
     "<property_>":
         ["<identifier><COLON> <propertyValue> <SEMI>",
-         "<identifier><COLON> <propertyValue> <IMPORTANT> <SEMI>"],
-         #"<identifier><COLON> <block>",
-         #"<identifier><COLON> <propertyValue> <block>",
-         #"<identifier><COLON> <propertyValue> <IMPORTANT> <block>"],
+         "<identifier><COLON> <propertyValue> <IMPORTANT> <SEMI>",
+         "<identifier><COLON> <block>",
+         "<identifier><COLON> <propertyValue> <block>",
+         "<identifier><COLON> <propertyValue> <IMPORTANT> <block>"],
         # TODO: see later!
         
     "<lastProperty>":
@@ -511,8 +511,8 @@ SCSS_GRAMMAR = {  # : Grammar = {?
     "<PLUS_LPAREN>"     : ["<PLUS> <LPAREN>"],
 
 
-    #"<UrlStart>":
-    #    ["<url> <LPAREN>"],  #-> pushMode(URL_STARTED)
+    "<UrlStart>":
+        ["<url> <LPAREN>"], 
 
     "<EQEQ>"            : ["=="],
     "<NOTEQ>"           : ["!="],
@@ -529,9 +529,9 @@ SCSS_GRAMMAR = {  # : Grammar = {?
     "<AT_FOR>"          : ["@for"],
     "<AT_WHILE>"        : ["@while"],
     "<AT_EACH>"         : ["@each"],
-    #"<INCLUDE>"         : ["@include"],
-    # "<IMPORT>"          : ["@import"],
-    # "<USE>"             : ["@use"],
+    "<INCLUDE>"         : ["@include"],
+    "<IMPORT>"          : ["@import"],
+    "<USE>"             : ["@use"],
     "<RETURN>"          : ["@return"],
     "<MEDIA>"           : ["@media"],
     "<CONTENT>"         : ["@content"],
@@ -544,9 +544,9 @@ SCSS_GRAMMAR = {  # : Grammar = {?
     "<ONLY>"            : ["only"],
     "<NOT>"             : ["not"],
     "<AND_WORD>"        : ["and"],
-    #"<USING>"           : ["using"],
-    # "<AS>"              : ["as"],
-    # "<WITH>"            : ["with"],
+    "<USING>"           : ["using"],
+    "<AS>"              : ["as"],
+    "<WITH>"            : ["with"],
 
 
     # Identifier
@@ -568,7 +568,7 @@ SCSS_GRAMMAR = {  # : Grammar = {?
     "<lowercaseChar>":
         [chr(order) for order in range(ord('a'), ord('z')+1)],   
 
-    #"<unicodeChar>":
+    # "<unicodeChar>":
     #    [chr(order) for order in range(ord('\u0100'), ord('\uffff'))],
     
     "<digit>":
@@ -596,7 +596,7 @@ SCSS_GRAMMAR = {  # : Grammar = {?
     # TODO: check this string
 
     # string literals
-    "<StringLiteral>": ["<STRING>"],
+    #"<StringLiteral>": ["<STRING>"],
 
     # number
     "<Number>":
@@ -648,10 +648,10 @@ SCSS_GRAMMAR = {  # : Grammar = {?
     #"<InterpolationEnd_ID>"    : ["<BlockEnd>"],  # -> type(BlockEnd);
     "<IdentifierAfter>"        : ["<Identifier>"],
 
-    #"<UrlEnd>"                 : ["<RPAREN>"], #-> popMode;
-    # "<Url>"                    : ["<STRING>",  "<urlChars>"],  # loop here!!!
+    "<UrlEnd>"                 : ["<RPAREN>"], #-> popMode;
+    #"<Url>"                    : ["<STRING>",  "<urlChars>"],  # loop here!!!
     
-    # "<urlChars>"               : ["<urlChar>", "<urlChar><urlChars>"],
+    #"<urlChars>"               : ["<urlChar>", "<urlChar><urlChars>"],
     # "<urlChar>"                : 
     #     [chr(order) for order in range(32, 41)] 
     #     + [chr(order) for order in range(42, 59)]

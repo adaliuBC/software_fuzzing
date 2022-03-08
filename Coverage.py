@@ -34,6 +34,10 @@ The Fuzzing Book - Code Coverage
 from typing import Any, Optional, Callable, List, Type, Set, Tuple
 from fileList import fileList
 
+def simplifyFname(fname):
+    ind = fname.index("\\scss\\")
+    return fname[ind+9:]
+
 def foo():
     print(1)
     print(2)
@@ -116,8 +120,9 @@ class Coverage:
             if frame.f_code.co_filename in fileList:
                 function_name = frame.f_code.co_name
                 lineno = frame.f_lineno
+                file_name = frame.f_code.co_filename
                 if function_name != '__exit__':  # avoid tracing ourselves:
-                    self._trace.append((function_name, lineno))
+                    self._trace.append((function_name, lineno, file_name))
 
         return self.traceit
 

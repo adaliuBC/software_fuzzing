@@ -526,6 +526,7 @@ class GrammarFuzzer(Fuzzer):
         if symbol in self.symbol2cost.keys():
             return self.symbol2cost[symbol]
         expansions = self.grammar[symbol]
+        #print(symbol, expansions)
         #self.seen = self.seen | {symbol}
         symbol_cost = float('inf')
         self.symbol2cost[symbol] = -1
@@ -534,30 +535,29 @@ class GrammarFuzzer(Fuzzer):
             if len(symbols) == 0:
                 #self.symbol2cost[symbol] = 1
                 expansion_cost = 1  # no nonterminal left
-            elif any((s in self.seen) for s in symbols) and symbol not in symbols:
-                #self.seen.discard(symbol)
-                #self.symbol2cost[symbol] = float('inf')
+            elif symbol in symbols:
                 expansion_cost = float('inf')
                 for s in symbols:
-                    if s == symbol:
-                        pass
-                    elif s in self.seen:
-                        pass
-                    else:
+                    if s != symbol and s not in self.seen:
                         self.seen = self.seen | {s}
-                        expansion_cost += self.recursion_compute_cost(s)
+                        self.recursion_compute_cost(s)
+                        self.seen.discard(s)
+
+            elif any((s in self.seen) for s in symbols):
+                expansion_cost = float('inf')
+                for s in symbols:
+                    if s != symbol and s not in self.seen:
+                        self.seen = self.seen | {s}
+                        self.recursion_compute_cost(s)
                         self.seen.discard(s)
             else:
                 expansion_cost = 0
                 for s in symbols:
-                    if s == symbol:
-                        expansion_cost += self.symbol2cost[symbol]
-                    else:
-                        self.seen = self.seen | {s}
-                        expansion_cost += self.recursion_compute_cost(s)
-                        self.seen.discard(s)
-                expansion_cost += 1
+                    self.seen = self.seen | {s}
+                    expansion_cost += self.recursion_compute_cost(s) + 1
+                    self.seen.discard(s)
             symbol_cost = min(symbol_cost, expansion_cost)
+            #print(f"  expansion cost for {symbol}->{expansion} = {expansion_cost}")
         self.symbol2cost[symbol] = symbol_cost
         return symbol_cost
 

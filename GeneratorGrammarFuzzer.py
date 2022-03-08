@@ -551,7 +551,6 @@ def exp_order(expansion):
 '''
 from GrammarFuzzer import display_tree
 from scssGrammar import SCSS_GRAMMAR
-from splitGrammar import RULESET_GRAMMAR
 from scss import Compiler
 from Coverage import Coverage
 from fileList import fileList
