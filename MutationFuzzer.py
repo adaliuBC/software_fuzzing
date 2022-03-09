@@ -354,25 +354,6 @@ class MutationFuzzer(MutationFuzzer):
             self.inp = self.create_candidate()
         return self.inp
 
-if __name__ == '__main__':
-    seed_input = "http://www.google.com/search?q=fuzzing"
-    mutation_fuzzer = MutationFuzzer(seed=[seed_input])
-    mutation_fuzzer.fuzz()
-
-if __name__ == '__main__':
-    mutation_fuzzer.fuzz()
-
-if __name__ == '__main__':
-    mutation_fuzzer.fuzz()
-
-## Guiding by Coverage
-## -------------------
-
-if __name__ == '__main__':
-    print('\n## Guiding by Coverage')
-
-
-
 from Fuzzer import Runner
 
 class FunctionRunner(Runner):
@@ -393,10 +374,6 @@ class FunctionRunner(Runner):
 
         return result, outcome
 
-if __name__ == '__main__':
-    http_runner = FunctionRunner(http_program)
-    http_runner.run("https://foo.bar/")
-
 from Coverage import Coverage, population_coverage, Location
 
 class FunctionCoverageRunner(FunctionRunner):
@@ -413,13 +390,6 @@ class FunctionCoverageRunner(FunctionRunner):
 
     def coverage(self) -> Set[Location]:
         return self._coverage
-
-if __name__ == '__main__':
-    http_runner = FunctionCoverageRunner(http_program)
-    http_runner.run("https://foo.bar/")
-
-if __name__ == '__main__':
-    print(list(http_runner.coverage())[:5])
 
 class MutationCoverageFuzzer(MutationFuzzer):
     """Fuzz with mutated inputs based on coverage"""

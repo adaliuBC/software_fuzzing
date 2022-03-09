@@ -32,7 +32,6 @@ The Fuzzing Book - Code Coverage
 '''
 
 from typing import Any, Optional, Callable, List, Type, Set, Tuple
-from fileList import fileList
 
 def simplifyFname(fname):
     ind = fname.index("\\scss\\")
@@ -101,9 +100,10 @@ class Coverage:
     ```
     """
 
-    def __init__(self) -> None:
+    def __init__(self, fileList = None) -> None:
         """Constructor"""
         self._trace: List[Location] = []   # [(funcName, lineNo)]
+        self.fileList = fileList
 
     # filename: frame.f_code.co_filename
     # lineno:frame.f_lineno
@@ -115,9 +115,8 @@ class Coverage:
             self.original_trace_function(frame, event, arg)
 
         if event == "line":
-            #if "ast.py" in frame.f_code.co_filename:
-            #    print(frame, frame.f_code.co_filename)
-            if frame.f_code.co_filename in fileList:
+            #print(frame, frame.f_code.co_filename)
+            if frame.f_code.co_filename in self.fileList:
                 function_name = frame.f_code.co_name
                 lineno = frame.f_lineno
                 file_name = frame.f_code.co_filename
@@ -150,7 +149,7 @@ class Coverage:
 
     def function_names(self) -> Set[str]:
         """The set of function names seen"""
-        return set(function_name for (function_name, line_number) in self.coverage())
+        return set(function_name for (function_name, line_number, file_name) in self.coverage())
 
     def __repr__(self) -> str:
         """Return a string representation of this object.

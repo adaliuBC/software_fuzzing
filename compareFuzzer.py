@@ -12,7 +12,6 @@ import random
 from func_timeout import func_set_timeout
 import func_timeout
 import time, threading, signal, pdb
-# 试试不同的fuzzer
 
 # seed_input = "http://www.google.com/search?q=fuzzing"
 # mutation_fuzzer = MutationFuzzer(seed=[seed_input])
@@ -42,7 +41,9 @@ if __name__ == '__main__':
                         isComment = False
                         multiCommentwith = ""
                 else:  # not in multi comment
-                    if "\""*3 in line:
+                    if line.isspace():
+                        pass
+                    elif "\""*3 in line:
                         isComment = True
                         multiCommentwith = "\""
                     elif "\'"*3 in line:
@@ -65,7 +66,7 @@ if __name__ == '__main__':
 
     from Fuzzer import RandomFuzzer
     randomFuzzer = RandomFuzzer(min_length=20, max_length=40)
-    #fuzzerList.append(randomFuzzer)  # open & close this fuzzer
+    # fuzzerList.append(randomFuzzer)  # open & close this fuzzer
 
     with open("example.txt", "rb") as f:
         seed = f.read()
@@ -77,10 +78,10 @@ if __name__ == '__main__':
     #     cssText = Compiler().compile_string(seed)
     # # print("Covered percentage single:\n", len(cov.coverage())/cntLines)
     # # print("generated css code:\n", cssText)
-    # print(le  n(cov.coverage())/cntLines)
-    #fuzzerList.append(mutationFuzzer)  # open & close this fuzzer
+    # print(len(cov.coverage())/cntLines)
+    # fuzzerList.append(mutationFuzzer)  # open & close this fuzzer
 
-    grammarFuzzer = GeneratorGrammarFuzzer(useGrammar, min_nonterminals=10, max_nonterminals=30, log = False)
+    grammarFuzzer = GeneratorGrammarFuzzer(SCSS_GRAMMAR, min_nonterminals=10, max_nonterminals=30, log = True)
     grammarFuzzer.check_grammar()
     grammarFuzzer.compute_cost()
     fuzzerList.append(grammarFuzzer)
@@ -110,15 +111,15 @@ if __name__ == '__main__':
 
             #print("\ngenerated scss code:\n", scssText)
             print("GeneratedscssText, start compiling ... ")
-            with Coverage() as cov:
+            with Coverage(fileList) as cov:
                 try:
-                    thread = threading.Thread(
-                        target = fuzzing, args = (scssText, )
-                    )
-                    thread.daemon = True
-                    thread.start()
-                    thread.join(5)
-                    #cssText = Compiler().compile_string(scssText)
+                    # thread = threading.Thread(
+                    #     target = fuzzing, args = (scssText, )
+                    # )
+                    # thread.daemon = True
+                    # thread.start()
+                    # thread.join(5)
+                    cssText = Compiler().compile_string(scssText)
                 except Exception as e:
                     print(e)
                     # pass
