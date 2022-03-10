@@ -5,7 +5,6 @@ from htmlGrammar import htmlGrammar
 #from splitGrammar import *
 
 from html.parser import HTMLParser
-from bs4 import BeautifulSoup, CData
 
 from Coverage import Coverage
 import matplotlib.pyplot as plt
@@ -14,15 +13,34 @@ from MutationFuzzer import MutationFuzzer
 import random
 from func_timeout import func_set_timeout
 import func_timeout
-import time, threading, signal, pdb
+import time, threading, signal, pdb, pickle
 
 # seed_input = "http://www.google.com/search?q=fuzzing"
 # mutation_fuzzer = MutationFuzzer(seed=[seed_input])
 # print([mutation_fuzzer.fuzz() for i in range(10)])
 
-def countLines():
-    global cntLines
-    cntLines = 0
+
+fileList_parser = [
+    "C:\\Users\\adali\\anaconda3\\envs\\python3\\lib\\html\\parser.py",
+    "C:\\Users\\adali\\anaconda3\\envs\\python3\\lib\\html\\__init__.py",
+    "C:\\Users\\adali\\anaconda3\\envs\\python3\\lib\\html\\entities.py"
+]
+
+fileList_bs4 = [
+    "C:\\Users\\adali\\anaconda3\\envs\\python3\\lib\\site-packages\\bs4\\dammit.py",
+    "C:\\Users\\adali\\anaconda3\\envs\\python3\\lib\\site-packages\\bs4\\diagnose.py",
+    "C:\\Users\\adali\\anaconda3\\envs\\python3\\lib\\site-packages\\bs4\\element.py",
+    "C:\\Users\\adali\\anaconda3\\envs\\python3\\lib\\site-packages\\bs4\\formatter.py",
+    "C:\\Users\\adali\\anaconda3\\envs\\python3\\lib\\site-packages\\bs4\\testing.py",
+    "C:\\Users\\adali\\anaconda3\\envs\\python3\\lib\\site-packages\\bs4\\builder\\_html5lib.py",
+    "C:\\Users\\adali\\anaconda3\\envs\\python3\\lib\\site-packages\\bs4\\builder\\_htmlparser.py",
+    "C:\\Users\\adali\\anaconda3\\envs\\python3\\lib\\site-packages\\bs4\\builder\\_lxml.py",
+]
+
+
+def countLines(fileList):
+    global totalLines
+    totalLines = 0
     for file in fileList:
         cntLine = 0
         with open(file, "rb") as f:
@@ -39,8 +57,12 @@ def countLines():
                     if line.isspace():
                         pass
                     elif "\""*3 in line:
-                        isComment = True
-                        multiCommentwith = "\""
+                        line.replace((3*multiCommentwith), "aaa", 1)
+                        if (3*multiCommentwith) in line:
+                            pass
+                        else:
+                            isComment = True
+                            multiCommentwith = "\""
                     elif "\'"*3 in line:
                         isComment = True
                         multiCommentwith = "\'"
@@ -51,19 +73,28 @@ def countLines():
                             cntLine += 1
                 
         #cntLine = len(open(file,'rb').readlines())
-        cntLines += cntLine
+        totalLines += cntLine
         print(file, cntLine)
-        file2lines[file] = cntLine
-    print("cntLines:", cntLines)
+        file2lines[file] = cntLine        
+    with open(f"./output/file2lines.pickle", "wb") as f:
+        pickle.dump(file2lines, f)
+    print("totalLines:", totalLines)
 
-def fuzzing(data):
-    parser.feed(data)
-    #print("Generated css code:\n", cssText)
 
 def has_class_but_no_id(tag):
     return tag.has_attr('class') and not tag.has_attr('id')
 
+
+def operation_parser(data):
+    parser = HTMLParser()
+    parser.feed(data)
+    parser = HTMLParser(convert_charrefs = True)
+    parser.feed(data)
+
+
 def operationWithSoup(data, parser):
+    import bs4
+    from bs4 import BeautifulSoup, CData, UnicodeDammit
     soup = BeautifulSoup(data, parser)
     soup.prettify()
     title = soup.title
@@ -102,36 +133,55 @@ def operationWithSoup(data, parser):
     soup.find_all(string = "hello", limit = 3)
     soup.select("a")
 
+def operation_bs4(data):
+    import bs4
+    from bs4 import BeautifulSoup, CData, UnicodeDammit
+    pos = UnicodeDammit(data)
+    operationWithSoup(data, "html.parser")
+    operationWithSoup(data, "lxml")
+    operationWithSoup(data, "html5lib")
+
+
+def fuzzingTrial(fuzzerStruct):  # fuzzername: fuzzer, operation, fileList, trial
+    fuzzerName, fuzzerInfo = fuzzerStruct
+    fuzzer = fuzzerInfo[0]
+    operation = fuzzerInfo[1]
+    fileList = fuzzerInfo[2]
+    trial = fuzzerInfo[3]
+    print("Generating data ... ")
+    if fuzzerName == "Mutation Fuzzer" or "Random Fuzzer":
+        data = fuzzer.fuzz()
+    elif fuzzerName == "Grammar Fuzzer":
+        fuzzer.fuzz()
+        data = all_terminals(fuzzer.derivation_tree)
+
+    with Coverage(fileList) as cov:
+        try:
+            operation(data)
+        except Exception as e:
+            print(e)
+    return cov
+
 file2lines = {}
-# fileList = ["C:\\Users\\adali\\anaconda3\\envs\\python3\\lib\\html\\parser.py",
-#             "C:\\Users\\adali\\anaconda3\\envs\\python3\\lib\\html\\__init__.py",
-#             "C:\\Users\\adali\\anaconda3\\envs\\python3\\lib\\html\\entities.py"
-#             ]
-fileList = [
-    #"C:\\Users\\adali\\anaconda3\\envs\\python3\\lib\\site-packages\\bs4\\dammit.py",
-    "C:\\Users\\adali\\anaconda3\\envs\\python3\\lib\\site-packages\\bs4\\diagnose.py",
-    "C:\\Users\\adali\\anaconda3\\envs\\python3\\lib\\site-packages\\bs4\\element.py",
-    "C:\\Users\\adali\\anaconda3\\envs\\python3\\lib\\site-packages\\bs4\\formatter.py",
-    "C:\\Users\\adali\\anaconda3\\envs\\python3\\lib\\site-packages\\bs4\\testing.py",
-    "C:\\Users\\adali\\anaconda3\\envs\\python3\\lib\\site-packages\\bs4\\builder\\_html5lib.py",
-    "C:\\Users\\adali\\anaconda3\\envs\\python3\\lib\\site-packages\\bs4\\builder\\_htmlparser.py",
-    "C:\\Users\\adali\\anaconda3\\envs\\python3\\lib\\site-packages\\bs4\\builder\\_lxml.py",
-]
+
 if __name__ == '__main__':
-    # cnt the total line num that is provided by Pyscss
-    # 计算总行数，benchmark（删除注释）
-    random.seed(0)
-    countLines()
+    
+    trial = 50
+    mode = "bs4"
 
     # build fuzzer list, prepare for test
-    fuzzerList = []  # list of fuzzer
-
+    random.seed(0)
+    countLines(fileList_bs4)
+    fuzzerList = {}
+    operation = operation_bs4
+    fileList = fileList_bs4
     # random fuzzer
     from Fuzzer import RandomFuzzer
-    randomFuzzer = RandomFuzzer(min_length=500, max_length=1000)
-    fuzzerList.append(randomFuzzer)  # open & close this fuzzer
+    randomFuzzer = RandomFuzzer(min_length=300, max_length=500)
+    fuzzerList["Random Fuzzer"] = [randomFuzzer, operation, fileList, trial]
 
     # mutation fuzzer
+    # readin seeds
     import os
     rootdir="D:\\ada\\Master\\2022Winter\\Software Fuzzing\\software_fuzzing\\examples\\"
     filenameList = []
@@ -145,114 +195,57 @@ if __name__ == '__main__':
         seed = seed.decode(encoding='utf-8')
         seedList.append(seed)
     mutationFuzzer = MutationFuzzer(seedList)
-    #parser = HTMLParser()
-    # with Coverage(fileList) as cov:
-    #     parser.feed(seed)
-    # print("Covered percentage single:\n", len(cov.coverage())/cntLines)
-    # print("generated css code:\n", cssText)
-    # print(len(cov.coverage()))
-    fuzzerList.append(mutationFuzzer)  # open & close this fuzzer
-    
+    #fuzzerList["Mutation Fuzzer"] = [mutationFuzzer, operation, fileList, trial]
+
+    # grammar fuzzer
     grammarFuzzer = GeneratorGrammarFuzzer(htmlGrammar, min_nonterminals=10, max_nonterminals=100, log = False)
     grammarFuzzer.check_grammar()
     grammarFuzzer.compute_cost()
-    fuzzerList.append(grammarFuzzer)
-    
-    fuzzerNameList = ["Random Fuzzer", "Mutation Fuzzer", "Grammar Fuzzer"]
-    trial = 200
+    #fuzzerList["Grammar Fuzzer"] = [grammarFuzzer, operation, fileList, trial]
 
     coveredLineLists = []
     timeList = []
 
-    for i in range(len(fuzzerList)):
-        fuzzer = fuzzerList[i]
-        fuzzerName = fuzzerNameList[i]
+    for (fuzzerName, fuzzerInfo) in fuzzerList.items():
+        # init value
         coveragePercentageAll = 0.
         coveredLines = set()
         xList = []
         yList = []
-        starttime = time.time()
+        timeList = []
+        startTime = time.time()
         for i in range(trial):
-            #print("Generating data ... ")
-            if fuzzerName == "Mutation Fuzzer" or "Random Fuzzer":
-                data = fuzzer.fuzz()
-            elif fuzzerName == "Grammar Fuzzer":
-                fuzzer.fuzz()
-                data = all_terminals(fuzzer.derivation_tree)
-
-            #print(data)
-            #print("Generated data, start compiling ... ")
-            with Coverage(fileList) as cov:
-                try:
-                    # parser = HTMLParser()
-                    # parser.feed(data)
-                    # parser = HTMLParser(convert_charrefs = True)
-                    # parser.feed(data)
-                    operationWithSoup(data, "html.parser")
-                    operationWithSoup(data, "lxml")
-                    opeationWithSoup(data, "html5lib")
-
-                except Exception as e:
-                    print(e)
-            # print("Covered percentage single:\n", len(cov.coverage())/cntLines)
-            #print("Compile finiashed, start computing ... ")
-            
+            cov = fuzzingTrial((fuzzerName, fuzzerInfo))
             coveredLines = coveredLines | cov.coverage()
+            coverPercent = len(coveredLines)/totalLines
+            print(f"\r{fuzzerName} {i}th trial:{coverPercent} of code lines covered in total")
             xList.append(i)
-            coverPercent = len(coveredLines)/cntLines
             yList.append(coverPercent)
-            #print(len(coveredLines), cntLines)
-            print(f"\r{fuzzerName} {i}th trial cover percent:", coverPercent)
-            #print(cov)
+            timeList.append(time.time()-startTime)
 
-        endtime = time.time()
-        timeList.append(endtime-starttime)
-        plt.plot(xList, yList, label=fuzzerName)  # add label
-        plt.xlabel("Trial")
-        plt.ylabel("Covered proportion")
-        # plt.title(fuzzerName)
-        # plt.show()
-
+        endTime = time.time()
+        posTime = endTime-startTime
+        print(f"\r{fuzzerName} finished {trial} trials in {posTime}s")
+        
         # get coveredLines, 计算每个文件hit了多少次
-        filename2cnt = {}
-        linelist = list(coveredLines)
-        linelist.sort(key = lambda x: (x[2], x[1]))
+        lineList = list(coveredLines)
+        lineList.sort(key = lambda x: (x[2], x[1]))
 
-        for line in linelist:
-            print(line)
-        coveredLineLists.append(linelist)
+           
+        with open(f"./output/HTML_{mode}_{fuzzerName}.pickle", "wb") as f:
+            pickle.dump(xList, f)
+            pickle.dump(yList, f)
+            pickle.dump(timeList, f)
+            pickle.dump(lineList, f)
+        # with open(f"./output/HTML_{mode}_{fuzzerName}.pickle", "rb") as f:
+        #     xList = pickle.load(f)
+        #     yList = pickle.load(f)
+        #     timeList = pickle.load(f)
+        #     lineList = pickle.load(f)
+        #     print(xList)
+        #     print(yList)
+        #     print(timeList)
+        #     print(lineList)
 
-        for line in coveredLines:
-            funcname, _, filename = line
-            if filename not in filename2cnt.keys():
-                filename2cnt[filename] = 1
-            else:
-                filename2cnt[filename] += 1
-        for file, cnt in filename2cnt.items():
-            print(f"{file}: {cnt}/{file2lines[file]}, {cnt/file2lines[file]}")
-    
-        # print(filename2cnt)
-        # 画图
-        fnameList = []
-        cntList = []
-        for fname, cnt in filename2cnt.items():
-            fnameList.append(fname)
-            cntList.append(cnt)
-        # 柱状图
-        #plt.
-        #plt.show()
-    
-    #plt.plot(fileList, file2coveredLineNumOrdered)
-    plt.legend()
-    plt.show()
 
-    import pickle
-    with open("save.pickle", "wb") as f:
-        pickle.dump(coveredLineLists, f)
-        pickle.dump(timeList, f)
-    with open("save.pickle", "rb") as f:
-        coveredLineLists = pickle.load(f)
-        timeList = pickle.load(f)
-        # print(coveredLineLists)
-        # print(timeList)
     

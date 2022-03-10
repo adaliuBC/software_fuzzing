@@ -115,7 +115,7 @@ class Coverage:
             self.original_trace_function(frame, event, arg)
 
         if event == "line":
-            #print(frame, frame.f_code.co_filename)
+            # print(frame, frame.f_code.co_filename)
             if frame.f_code.co_filename in self.fileList:
                 function_name = frame.f_code.co_name
                 lineno = frame.f_lineno
