@@ -215,6 +215,13 @@ def flip_random_character(s):
     # print("Flipping", bit, "in", repr(c) + ", giving", repr(new_c))
     return s[:pos] + new_c + s[pos + 1:]
 
+def delete_random_line(s):
+    """Returns s with a random bit flipped in a random position"""
+    s.split("\n")
+    pos = random.randint(0, len(s) - 1)
+    # print("Flipping", bit, "in", repr(c) + ", giving", repr(new_c))
+    return s[:pos] + s[pos + 1:]
+
 if __name__ == '__main__':
     for i in range(10):
         print(repr(flip_random_character(seed_input)))
@@ -224,7 +231,8 @@ def mutate(s: str) -> str:
     mutators = [
         delete_random_character,
         insert_random_character,
-        flip_random_character
+        flip_random_character,
+        delete_random_line
     ]
     mutator = random.choice(mutators)
     # print(mutator)

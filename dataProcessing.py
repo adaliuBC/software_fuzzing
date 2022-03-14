@@ -1,8 +1,8 @@
 import pickle
 import matplotlib.pyplot as plt
 import numpy as np 
-grammar = "HTML"
-mode = "bs4"
+grammar = "SCSS" #"HTML"
+mode = "pyscss"  #"bs4"
 fuzzers = ["Random Fuzzer", "Mutation Fuzzer", "Grammar Fuzzer"]
 with open(f"./output/file2lines.pickle", "rb") as f:
     file2lines = pickle.load(f)  # total lines of file
@@ -15,11 +15,14 @@ for fuzzer in fuzzers:
         times = pickle.load(f)
         lines = pickle.load(f)
 
-    # plt.plot(trials, coverages, label=fuzzer)  # add label
-    # plt.xlabel("Trial")
-    # plt.ylabel("Covered proportion")
-    # plt.title(fuzzer)
-    # plt.show()
+    for i in range(len(coverages)):  # decimal -> %
+        coverages[i] = coverages[i] * 100
+    print(coverages[-1])
+    #plt.plot(trials, times, label=fuzzer)  # add label
+    plt.plot(trials, coverages, label=fuzzer)  # add label
+    plt.xlabel("Trial")
+    plt.ylabel("Coverage(%)")
+    #plt.ylabel("Time(s)")
 
     
     filename2cnt = {}
@@ -31,22 +34,22 @@ for fuzzer in fuzzers:
             filename2cnt[filename] += 1
     for file, cnt in filename2cnt.items():
         print(f"{file}: {cnt}/{file2lines[file]}, {cnt/file2lines[file]}")
-    
     file2coveredLinesList = []
     for file, cnt in filename2cnt.items():
         file2coveredLinesList.append([file, cnt])
-    print("~~~~", file2coveredLinesList)
     file2coveredLinesList.sort(key = lambda x: x[0])  # sort by name
-    print("====", file2coveredLinesList)
     fuzzer2fileCoverage[fuzzer] = file2coveredLinesList
 
-
+plt.legend()
+plt.title("Coverage-Trial")
+#plt.title("Time-Trial")
+plt.show()
 # # 画图
 print("----", fuzzer2fileCoverage)
 files = []
 for fuzzer, filecov in fuzzer2fileCoverage.items():
     for i in range(len(filecov)):
-        filename = filecov[i][0].split("\\")[-1]
+        filename = filecov[i][0].split("\\")[-1][:-3]
         if filename not in files:
             files.append(filename)
 xlabels = files
@@ -59,7 +62,7 @@ for fuzzer in ["Random Fuzzer", "Mutation Fuzzer", "Grammar Fuzzer"]:
     for targetFileName in files:
         isFound = False
         for i in range(len(filecov)):
-            fileName = filecov[i][0].split("\\")[-1]
+            fileName = filecov[i][0].split("\\")[-1][:-3]
             fileLineCnt = filecov[i][1]
             if fileName == targetFileName:
                 y.append(fileLineCnt)
@@ -79,10 +82,13 @@ print(ys)
 total_width, n = 0.8, 3
 width = total_width / n
 x = x - (total_width - width) / 2
+plt.xticks(x, xlabels)
 
-plt.bar(x, rFuzzerY,  width=width, label='Random Fuzzer')
-plt.bar(x + width, mFuzzerY, width=width, label='Mutation Fuzzer')
-plt.bar(x + 2 * width, gFuzzerY, width=width, label='Grammar Fuzzer')
+plt.bar(x - width, rFuzzerY,  width=width, label='Random Fuzzer')
+plt.bar(x, mFuzzerY, width=width, label='Mutation Fuzzer')
+plt.bar(x + width, gFuzzerY, width=width, label='Grammar Fuzzer')
+plt.xlabel("File Name")
+plt.ylabel("Number of covered lines")
 plt.legend()
 plt.show()
 

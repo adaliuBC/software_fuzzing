@@ -553,7 +553,7 @@ from GrammarFuzzer import display_tree
 from scssGrammar import SCSS_GRAMMAR
 from scss import Compiler
 from Coverage import Coverage
-from fileList import fileList
+fileList = []
 import matplotlib.pyplot as plt
 #from GeneratorGrammarFuzzer import PGGCFuzzer
 # 试试不同的fuzzer

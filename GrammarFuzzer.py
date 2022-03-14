@@ -627,11 +627,12 @@ class GrammarFuzzer(Fuzzer):
         return all_terminals(self.derivation_tree)
 
 from scssGrammar import SCSS_GRAMMAR
+from htmlGrammar import htmlGrammar
 #from GeneratorGrammarFuzzer import PGGCFuzzer
 # 试试不同的fuzzer
 if __name__ == '__main__':
 
-    f = GrammarFuzzer(SCSS_GRAMMAR, min_nonterminals=3, max_nonterminals=50, log=True)
+    f = GrammarFuzzer(htmlGrammar, min_nonterminals=10, max_nonterminals=20, log=True)
     f.check_grammar()
     f.compute_cost()
     f.fuzz()
