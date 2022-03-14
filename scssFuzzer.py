@@ -7,7 +7,7 @@ from Coverage import Coverage
 import matplotlib.pyplot as plt
 from GeneratorGrammarFuzzer import GeneratorGrammarFuzzer
 from MutationFuzzer import MutationFuzzer
-import random
+import random, sys
 # from func_timeout import func_set_timeout
 # import func_timeout
 import time, pickle
@@ -54,7 +54,7 @@ def countLines(fileList):
                     if line.isspace():
                         pass
                     elif "\""*3 in line:
-                        #line.replace((3*multiCommentwith), "aaa", 1)
+                        line.replace((3*multiCommentwith), "aaa", 1)
                         if (3*multiCommentwith) in line:
                             pass
                         else:
@@ -109,6 +109,7 @@ if __name__ == '__main__':
 
     # build fuzzer list, prepare for test
     random.seed(0)
+    fuzzerMode = sys.argv[1]
     mode = "pyscss"
     countLines(fileList_scss)
     fuzzerList = {}
@@ -151,36 +152,45 @@ if __name__ == '__main__':
     coveredLineLists = []
     timeList = []
 
-    for (fuzzerName, fuzzerInfo) in fuzzerList.items():
-        # init value
-        coveragePercentageAll = 0.
-        coveredLines = set()
-        xList = []
-        yList = []
-        timeList = []
-        startTime = time.time()
-        for i in range(trial):
-            #import bs4
-            cov, posTime = fuzzingTrial((fuzzerName, fuzzerInfo))
-            coveredLines = coveredLines | cov.coverage()
-            coverPercent = len(coveredLines)/totalLines
-            print(f"\r{fuzzerName} {i}th trial:{coverPercent} of code lines covered in total")
-            xList.append(i)
-            yList.append(coverPercent)
-            timeList.append(timeList[-1]+posTime if len(timeList)>0 else posTime)
+    if fuzzerMode == "RandomFuzzer":
+        fuzzerName = "Random Fuzzer"
+        fuzzerInfo = [randomFuzzer, operation, fileList, trial]
+    elif fuzzerMode == "MutationFuzzer":
+        fuzzerName = "Mutation Fuzzer"
+        fuzzerInfo = [mutationFuzzer, operation, fileList, trial]
+    elif fuzzerMode == "GrammarFuzzer":
+        fuzzerName = "Grammar Fuzzer"
+        fuzzerInfo = [grammarFuzzer, operation, fileList, trial]
 
-        endTime = time.time()
-        posTime = endTime-startTime
-        print(f"\r{fuzzerName} finished {trial} trials in {posTime}s")
+    # init value
+    coveragePercentageAll = 0.
+    coveredLines = set()
+    xList = []
+    yList = []
+    timeList = []
+    startTime = time.time()
+    for i in range(trial):
+        #import bs4
+        cov, posTime = fuzzingTrial((fuzzerName, fuzzerInfo))
+        coveredLines = coveredLines | cov.coverage()
+        coverPercent = len(coveredLines)/totalLines
+        print(f"\r{fuzzerName} {i}th trial:{coverPercent} of code lines covered in total")
+        xList.append(i)
+        yList.append(coverPercent)
+        timeList.append(timeList[-1]+posTime if len(timeList)>0 else posTime)
+
+    endTime = time.time()
+    posTime = endTime-startTime
+    print(f"\r{fuzzerName} finished {trial} trials in {posTime}s")
+    
+    # get coveredLines, 计算每个文件hit了多少次
+    lineList = list(coveredLines)
+    lineList.sort(key = lambda x: (x[2], x[1]))
+
         
-        # get coveredLines, 计算每个文件hit了多少次
-        lineList = list(coveredLines)
-        lineList.sort(key = lambda x: (x[2], x[1]))
-
-           
-        with open(f"./output/SCSS_{mode}_{fuzzerName}.pickle", "wb") as f:
-            pickle.dump(xList, f)
-            pickle.dump(yList, f)
-            pickle.dump(timeList, f)
-            pickle.dump(lineList, f)
-        #print(timeList)
+    with open(f"./output/SCSS_{mode}_{fuzzerName}.pickle", "wb") as f:
+        pickle.dump(xList, f)
+        pickle.dump(yList, f)
+        pickle.dump(timeList, f)
+        pickle.dump(lineList, f)
+    #print(timeList)
